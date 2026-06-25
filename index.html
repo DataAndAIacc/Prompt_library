@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rolls-Royce Prompt Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F8F7; --surface:#FFFFFF; --ink:#13191D; --muted:#5C666C; --faint:#8A949A;
+    --line:#D8DDDE; --line-strong:#B9C0C2; --accent:#0F5C8C; --accent-soft:#E7F0F5;
+    --warn:#A8421F; --warn-soft:#F6E7E0; --star:#C98A12; --good:#0a6b3f;
+    --display:'Space Grotesk',sans-serif; --body:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box;border-radius:0!important;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+  a{color:var(--accent);}
+  button{font-family:var(--body);}
+  header.hero{border-bottom:1px solid var(--line-strong);background:var(--surface);}
+  .hero-inner{max-width:1180px;margin:0 auto;padding:30px 28px 22px;}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);display:flex;gap:14px;align-items:center;}
+  .eyebrow::after{content:"";flex:1;height:1px;background:var(--line);}
+  h1{font-family:var(--display);font-weight:600;font-size:clamp(28px,5vw,46px);line-height:1.04;margin:12px 0 8px;letter-spacing:-.01em;}
+  .lede{color:var(--muted);max-width:58ch;font-size:14.5px;margin:0;}
+  .stats{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;border:1px solid var(--line);}
+  .stat{padding:11px 18px;border-right:1px solid var(--line);min-width:110px;}
+  .stat:last-child{border-right:none;}
+  .stat b{font-family:var(--display);font-size:23px;font-weight:600;display:block;}
+  .stat small{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);}
+  .banner{max-width:1180px;margin:0 auto;padding:0 28px;}
+  .banner-in{margin-top:14px;border:1px solid var(--warn);background:var(--warn-soft);color:#5a2412;padding:10px 14px;font-size:13px;font-family:var(--mono);display:none;}
+  .banner-in.show{display:block;}
+  .pagenav{position:sticky;top:0;z-index:30;background:var(--ink);}
+  .pagenav-inner{max-width:1180px;margin:0 auto;padding:0 28px;display:flex;gap:0;}
+  .pagenav button{background:none;border:none;border-bottom:3px solid transparent;color:#aeb6bb;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:14px 18px;cursor:pointer;}
+  .pagenav button:hover{color:#fff;}
+  .pagenav button.active{color:#fff;border-bottom-color:var(--accent);}
+  .page{display:none;} .page.active{display:block;}
+  .controls{position:sticky;top:49px;z-index:20;background:var(--surface);border-bottom:1px solid var(--line-strong);}
+  .controls-inner{max-width:1180px;margin:0 auto;padding:12px 28px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+  .search{flex:1;min-width:200px;position:relative;}
+  .search input{width:100%;font-family:var(--mono);font-size:13px;padding:9px 12px 9px 34px;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent);}
+  .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;stroke:var(--faint);}
+  .count{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap;}
+  .btn{font-family:var(--mono);font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:9px 14px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;}
+  .btn:hover{background:#0c4a70;} .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .btn.ghost{background:none;color:var(--accent);} .btn.ghost:hover{background:var(--accent-soft);}
+  .tagwrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+  .tagbox{margin-top:14px;border:1px solid var(--line);background:var(--surface);}
+  .tagbox summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:9px 14px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+  .tagbox summary::-webkit-details-marker{display:none;}
+  .tagbox summary .arr{transition:transform .18s;display:inline-block;color:var(--faint);}
+  .tagbox[open] summary .arr{transform:rotate(90deg);}
+  .tagbox summary .active-tag{margin-left:auto;color:var(--accent);}
+  .tagchips{display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 12px;}
+  .chip{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--line-strong);padding:4px 10px;cursor:pointer;background:var(--surface);display:inline-flex;gap:7px;align-items:center;}
+  .chip:hover{border-color:var(--accent);color:var(--accent);} .chip.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .chip .ct{font-size:10px;opacity:.7;}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 80px;display:grid;grid-template-columns:240px 1fr;gap:34px;align-items:start;}
+  nav.toc{position:sticky;top:108px;font-size:13px;max-height:calc(100vh - 130px);overflow:auto;}
+  nav.toc .toc-h{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:14px 0 6px;}
+  nav.toc .toc-h:first-child{margin-top:0;}
+  nav.toc button{display:flex;width:100%;justify-content:space-between;gap:8px;align-items:baseline;text-align:left;background:none;border:none;border-left:2px solid var(--line);padding:6px 12px;color:var(--muted);cursor:pointer;font-size:13px;}
+  nav.toc button:hover{color:var(--ink);background:var(--surface);}
+  nav.toc button.active{color:var(--ink);border-left-color:var(--accent);background:var(--surface);font-weight:600;}
+  nav.toc button .n{font-family:var(--mono);font-size:11px;color:var(--faint);}
+  main{min-width:0;}
+  section.group{margin-bottom:14px;}
+  .group-head{display:flex;align-items:baseline;gap:14px;padding:16px 0 10px;border-bottom:2px solid var(--ink);margin-bottom:18px;}
+  .group-head.project{border-bottom-color:var(--accent);}
+  .group-head .gn{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:500;}
+  .group-head h2{font-family:var(--display);font-weight:600;font-size:21px;margin:0;letter-spacing:-.01em;}
+  .group-head .gdesc{color:var(--muted);font-size:13px;margin-left:auto;text-align:right;max-width:42ch;}
+  .card{background:var(--surface);border:1px solid var(--line);margin-bottom:14px;}
+  .card-head{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;cursor:pointer;}
+  .card-head:hover{background:var(--paper);}
+  .cid{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:500;padding-top:2px;min-width:40px;}
+  .ctitle-wrap{flex:1;min-width:0;}
+  .ctitle{font-family:var(--display);font-weight:500;font-size:16px;line-height:1.25;}
+  .cuse{color:var(--muted);font-size:13px;margin-top:3px;} .cuse b{color:var(--ink);font-weight:600;}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .tag{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:2px 7px;cursor:pointer;}
+  .tag:hover{border-color:var(--accent);color:var(--accent);}
+  .tag.ws{color:#fff;background:var(--ink);border-color:var(--ink);cursor:default;}
+  .avg{font-family:var(--mono);font-size:11px;color:var(--star);white-space:nowrap;padding-top:3px;}
+  .chev{stroke:var(--faint);width:16px;height:16px;flex:none;transition:transform .18s;margin-top:4px;}
+  .card.open .chev{transform:rotate(90deg);}
+  .card-body{display:none;border-top:1px solid var(--line);padding:4px 18px 16px;}
+  .card.open .card-body{display:block;}
+  .block{margin-top:14px;}
+  .block-label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-bottom:6px;}
+  .copy{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:none;border:1px solid var(--line-strong);padding:3px 9px;cursor:pointer;}
+  .copy:hover{background:var(--accent-soft);border-color:var(--accent);} .copy.done{color:var(--good);border-color:var(--good);}
+  pre{font-family:var(--mono);font-size:12.5px;line-height:1.5;background:var(--paper);border:1px solid var(--line);padding:12px 14px;margin:0;white-space:pre-wrap;word-break:break-word;color:#1d2429;}
+  .meta{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:16px;padding-top:12px;border-top:1px dashed var(--line);}
+  .rate{display:flex;align-items:center;gap:8px;} .rate .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);}
+  .stars{display:inline-flex;}
+  .star{cursor:pointer;font-size:18px;line-height:1;color:var(--line-strong);user-select:none;}
+  .star.fill{color:var(--star);} .star.hv{color:var(--star);}
+  .fb-toggle{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;}
+  .fb-toggle:hover{text-decoration:underline;}
+  .fb-panel{display:none;margin-top:12px;} .fb-panel.open{display:block;}
+  .fb-list{margin:0 0 10px;}
+  .fb-item{font-size:13px;border-left:2px solid var(--line-strong);padding:6px 10px;margin-bottom:6px;background:var(--paper);}
+  .fb-item .ts{font-family:var(--mono);font-size:10px;color:var(--faint);display:block;margin-top:3px;}
+  .fb-form{display:flex;gap:8px;align-items:flex-start;}
+  .fb-form textarea{flex:1;font-family:var(--body);font-size:13px;padding:8px 10px;border:1px solid var(--line-strong);background:var(--paper);resize:vertical;min-height:38px;}
+  .fb-form textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;}
+  .empty-note{font-family:var(--mono);font-size:12.5px;color:var(--muted);background:var(--surface);border:1px dashed var(--line-strong);padding:16px;}
+  .pe-wrap,.tools-wrap{max-width:1000px;margin:0 auto;padding:28px 28px 80px;}
+  .tools-wrap{max-width:1100px;}
+  .pe-intro{color:var(--muted);max-width:70ch;margin-bottom:8px;}
+  .pe-sub{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);border-bottom:2px solid var(--ink);padding-bottom:8px;margin:34px 0 18px;}
+  .pe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+  .pe-card{border:1px solid var(--line);background:var(--surface);padding:16px 18px;}
+  .pe-card h4{font-family:var(--display);font-weight:600;font-size:16px;margin:0 0 6px;}
+  .pe-card p{margin:0 0 10px;font-size:13.5px;color:var(--ink);}
+  .pe-card .ex{font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--paper);border-left:2px solid var(--accent);padding:8px 10px;}
+  .pe-card .ex b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:3px;}
+  .tooling{background:var(--surface);border:1px solid var(--line);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);background:var(--paper);border-bottom:1px solid var(--line-strong);}
+  td b{font-family:var(--display);font-weight:500;}
+  tr:last-child td{border-bottom:none;}
+  .note{font-size:12px;color:var(--muted);margin-top:12px;font-family:var(--mono);}
+  .empty{padding:40px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px;display:none;}
+  .overlay{position:fixed;inset:0;background:rgba(19,25,29,.45);z-index:50;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;}
+  .overlay.open{display:flex;}
+  .modal{background:var(--surface);border:1px solid var(--line-strong);width:100%;max-width:680px;}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line-strong);}
+  .modal-head h3{font-family:var(--display);font-weight:600;margin:0;font-size:18px;}
+  .modal-head .x{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);line-height:1;}
+  .modal-body{padding:18px 20px;}
+  .modal-note{font-size:12px;color:var(--muted);background:var(--paper);border-left:2px solid var(--accent);padding:8px 11px;margin-bottom:14px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:5px;}
+  .field input,.field textarea,.field select{width:100%;font-family:var(--body);font-size:14px;padding:9px 11px;border:1px solid var(--line-strong);background:var(--paper);}
+  .field textarea{font-family:var(--mono);font-size:12.5px;resize:vertical;}
+  .field input:focus,.field textarea:focus,.field select:focus{outline:2px solid var(--accent);outline-offset:-1px;}
+  .field .hint{font-size:11px;color:var(--faint);margin-top:4px;}
+  .modal-foot{display:flex;gap:10px;justify-content:flex-end;padding:16px 20px;border-top:1px solid var(--line-strong);}
+  #newSecFields{display:none;border-left:2px solid var(--accent);padding-left:12px;}
+  #newSecFields.show{display:block;}
+  @media(max-width:860px){
+    .wrap{grid-template-columns:1fr;gap:18px;}
+    nav.toc{position:static;max-height:none;display:flex;flex-wrap:wrap;gap:4px;}
+    nav.toc .toc-h{width:100%;}
+    nav.toc button{width:auto;border-left:none;border:1px solid var(--line);}
+    .group-head .gdesc{display:none;}
+  }
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;}html{scroll-behavior:auto;}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Rolls-Royce · AI Prompt Library</div>
+    <h1>Reusable prompts for your work on the account.</h1>
+    <p class="lede">A shared, live library of system prompts and fill-in templates. Add prompts, rate what works, and leave feedback — saved for everyone. Placeholders only — never client or personal data.</p>
+    <div class="stats" id="stats"></div>
+  </div>
+</header>
+<div class="banner"><div class="banner-in" id="banner"></div></div>
+<nav class="pagenav">
+  <div class="pagenav-inner">
+    <button data-page="library" class="active">Prompt Library</button>
+    <button data-page="pe">Prompt Engineering</button>
+    <button data-page="tools">Approved Tools</button>
+  </div>
+</nav>
+<div class="page active" id="page-library">
+  <div class="controls" id="libControls">
+    <div class="controls-inner">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="search" type="text" placeholder="Search prompts…" autocomplete="off">
+      </div>
+      <span class="count" id="count"></span>
+      <button class="btn" id="addBtn">＋ Add prompt</button>
+    </div>
+    <div class="tagwrap">
+      <details class="tagbox" id="tagbox">
+        <summary><span class="arr">▶</span> Filter by tag <span class="active-tag" id="activeTagLabel"></span></summary>
+        <div class="tagchips" id="tagchips"></div>
+      </details>
+    </div>
+  </div>
+  <div class="wrap">
+    <nav class="toc" id="toc"></nav>
+    <main id="main"><div class="empty" id="empty">Nothing matches that filter.</div></main>
+  </div>
+</div>
+<div class="page" id="page-pe">
+  <div class="pe-wrap">
+    <h1 style="font-family:var(--display);font-weight:600;font-size:28px;margin:6px 0 10px;">Prompt engineering, briefly.</h1>
+    <p class="pe-intro">A short reference for getting better, more reliable results from any approved AI tool. Techniques are ways of asking; patterns are repeatable structures you can reuse. Mix and match them.</p>
+    <div class="pe-sub">Techniques · ways of asking</div>
+    <div class="pe-grid" id="peTechniques"></div>
+    <div class="pe-sub">Patterns · repeatable structures</div>
+    <div class="pe-grid" id="pePatterns"></div>
+  </div>
+</div>
+<div class="page" id="page-tools">
+  <div class="tools-wrap">
+    <h1 style="font-family:var(--display);font-weight:600;font-size:28px;margin:6px 0 10px;">Approved AI tools.</h1>
+    <p class="pe-intro" style="margin-bottom:18px;">Use only approved tools, in line with policy. Never enter client, personal or sensitive data.</p>
+    <div class="tooling"><table><thead><tr><th>Tool</th><th>Main use case</th><th>Access link</th><th>Access process</th><th>Usage guidance</th></tr></thead><tbody id="toolsBody"></tbody></table></div>
+    <p class="note">Tooling and access routes change — confirm against current organisational policy before use.</p>
+  </div>
+</div>
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head"><h3>Add a prompt</h3><button class="x" id="closeModal">×</button></div>
+    <div class="modal-body">
+      <div class="modal-note">Your prompt is shared with everyone. It goes live once a maintainer approves it. Use placeholders like {CLIENT} — never paste client, personal or sensitive data.</div>
+      <div class="field"><label>Section</label><select id="f-section"></select><div class="hint">Pick a general section or a workstream, or start a new section.</div></div>
+      <div id="newSecFields">
+        <div class="field"><label>New section title</label><input id="f-secTitle" placeholder="e.g. My team's prompts"></div>
+      </div>
+      <div class="field"><label>Workstream (optional)</label><select id="f-ws" multiple size="5" style="font-family:var(--mono);font-size:12.5px;"></select><div class="hint">Optional — link to one or more workstreams. Ctrl/Cmd-click for more than one.</div></div>
+      <div class="field"><label>Prompt title</label><input id="f-title" placeholder="Short, clear name"></div>
+      <div class="field"><label>Use when</label><input id="f-use" placeholder="When would someone reach for this?"></div>
+      <div class="field"><label>System prompt</label><textarea id="f-sys" rows="4" placeholder="Defines the assistant's role and rules…"></textarea></div>
+      <div class="field"><label>User template</label><textarea id="f-usr" rows="5" placeholder="The fill-in template, with {PLACEHOLDERS}…"></textarea></div>
+      <div class="field"><label>Tags</label><input id="f-tags" placeholder="comma, separated, tags"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="cancelModal">Cancel</button>
+      <button class="btn" id="saveModal">Submit prompt</button>
+    </div>
+  </div>
+</div>
+<script>
+/* =====================================================================
+   CONFIG — paste your Supabase project values here, then commit.
+   Project URL + anon (public) key from: Supabase > Project Settings > API.
+   The anon key is meant to be public; the database RLS policies protect data.
+   Leave as-is to run in offline demo mode (read-only, bundled prompts).
+===================================================================== */
+const SUPABASE_URL  = "YOUR_SUPABASE_URL";        // e.g. https://abcd1234.supabase.co
+const SUPABASE_ANON = "YOUR_SUPABASE_ANON_KEY";   // the public anon key
+
+const LIVE = SUPABASE_URL.startsWith("http") && !SUPABASE_ANON.startsWith("YOUR_");
+const REST = SUPABASE_URL + "/rest/v1";
+const HEAD = {apikey:SUPABASE_ANON, Authorization:"Bearer "+SUPABASE_ANON, "Content-Type":"application/json"};
+
+const BASE_SECTIONS=[{"n": "01", "id": "guides", "group": "general", "title": "Guidelines & Good Practice", "desc": "How to get good results and keep data safe."}, {"n": "02", "id": "overview", "group": "general", "title": "Overviews & Onboarding", "desc": "Explain a system and get people up to speed."}, {"n": "03", "id": "eng", "group": "general", "title": "Engineering & Code", "desc": "Light help with code, config and debugging."}, {"n": "04", "id": "writing", "group": "general", "title": "Writing & Documentation", "desc": "Change notes, summaries and cleaner text."}, {"n": "05", "id": "data", "group": "general", "title": "Data & Analysis", "desc": "Safe queries, interpreting output and lineage."}, {"n": "06", "id": "broad", "group": "general", "title": "Broad & Analytical Queries", "desc": "Cross-cutting analysis, digests and risk views."}, {"n": "07", "id": "finance", "group": "general", "title": "Financial, Commercial & Delivery", "desc": "Effort, cost, capacity and status reporting."}, {"n": "08", "id": "account", "group": "general", "title": "Account & Client Management", "desc": "Relationship, stakeholder and account health."}, {"n": "09", "id": "meetings", "group": "general", "title": "Meetings & Communication", "desc": "Agendas, notes, follow-ups and tricky talks."}, {"n": "10", "id": "schedule", "group": "general", "title": "Scheduling & Planning", "desc": "Calendars, timelines, priorities and capacity."}, {"n": "11", "id": "general", "group": "general", "title": "General & Decisions", "desc": "Everyday writing, thinking and decisions."}, {"n": "12", "id": "ws-gbs", "group": "project", "title": "GBS", "desc": "Workstream-specific prompts for GBS."}, {"n": "13", "id": "ws-controls", "group": "project", "title": "Controls / Engineering", "desc": "Workstream-specific prompts for Controls / Engineering."}, {"n": "14", "id": "ws-iip", "group": "project", "title": "IIP", "desc": "Workstream-specific prompts for IIP."}, {"n": "15", "id": "ws-bpf", "group": "project", "title": "BP&F", "desc": "Workstream-specific prompts for BP&F."}, {"n": "16", "id": "ws-wsaas", "group": "project", "title": "WSaaS", "desc": "Workstream-specific prompts for WSaaS."}, {"n": "17", "id": "ws-pmaas", "group": "project", "title": "PMaaS", "desc": "Workstream-specific prompts for PMaaS."}, {"n": "18", "id": "ws-maximo", "group": "project", "title": "Maximo AMS", "desc": "Workstream-specific prompts for Maximo AMS."}, {"n": "19", "id": "ws-cost", "group": "project", "title": "Cost Ecosystem", "desc": "Workstream-specific prompts for Cost Ecosystem."}, {"n": "20", "id": "ws-ehm", "group": "project", "title": "EHM", "desc": "Workstream-specific prompts for EHM."}, {"n": "21", "id": "ws-pmo", "group": "project", "title": "PMO", "desc": "Workstream-specific prompts for PMO."}];
+const TECHNIQUES=[{"h": "Zero-Shot", "p": "Ask for a task with no examples; the model relies on what it already knows. Best for simple, well-understood requests.", "ex": "Summarise this update in three bullets."}, {"h": "Few-Shot", "p": "Give a few examples first to show the format, style and approach you want, then the new input.", "ex": "Here are two example summaries… now summarise this one the same way."}, {"h": "Prompt Chaining", "p": "Link prompts in sequence, each building on the last, to break a complex task into manageable steps.", "ex": "1) Extract the key points. 2) Group them. 3) Draft the email from the groups."}, {"h": "Chain-of-Thought", "p": "Ask the model to show its reasoning step by step before the final answer — more transparent and often more reliable.", "ex": "Work through this step by step, then give your conclusion."}, {"h": "Tree-of-Thought", "p": "Have the model explore several solution paths and weigh them before committing to one.", "ex": "Give three different approaches, compare them, then recommend one."}, {"h": "ReAct", "p": "Alternate reasoning and action: Thought → Action → Observation, repeated until an answer is reached. Useful with tools.", "ex": "Reason about what to check, look it up, note what you found, then continue."}, {"h": "Knowledge Augmentation", "p": "Add external, current or specialist information straight into the prompt so the answer is grounded in it.", "ex": "Using the policy text below, answer the question…"}, {"h": "Input Semantics & Framing", "p": "Word choice, phrasing and structure change how the model understands a request. Small wording changes can shift the answer.", "ex": "Rephrase a vague ask into a specific, structured one."}];
+const PATTERNS=[{"h": "Prompt Patterns", "p": "Repeatable frameworks that produce consistent results, so you're not relying on trial and error each time."}, {"h": "Input Customization", "p": "Structure the information and requirements inside the prompt so complex data is clear and easy to work with."}, {"h": "Output Customization", "p": "Control how the response is formatted and styled, so it comes back in exactly the shape you need."}, {"h": "Error Identification", "p": "Diagnose why a prompt is failing or returning irrelevant results, and guide a targeted fix."}, {"h": "Interaction Control", "p": "Manage long conversations and multi-step work so context isn't lost and each step builds on the last."}, {"h": "Combining Patterns", "p": "Layer patterns together: a base pattern for structure, plus add-ons for format, control or accuracy."}];
+const TOOLS=[["ChatGPT", "General AI assistance, drafting and summarisation", "OpenAI / ChatGPT", "Access via approved business / licensing route", "Follow organisational guidance for approved data usage"], ["Claude", "Large document analysis and summarisation", "Claude", "Business-approved access / licensing required", "Use in line with approved business guidance"], ["Microsoft Copilot", "Productivity support across Teams, Outlook and Word", "Copilot", "Enterprise-enabled Microsoft access", "Internal business use in accordance with policy"], ["Databricks Genie", "Data and analytics query support", "Internal Databricks environment", "Access via Databricks workspace permissions", "Approved enterprise datasets only"], ["Gemini", "Google AI assistant and search support", "Gemini", "Access via approved Google enterprise route", "Follow approved data-handling guidance"]];
+const FALLBACK_PROMPTS=[{"s": "guides", "t": "Write a Good Prompt", "use": "You want better, more reliable answers from any AI tool.", "tags": ["guidelines"], "sys": "You are a prompt-engineering coach. You improve prompts by making the role, task, context, output format and constraints explicit, and by adding an example where it helps. Before giving your answer, briefly reason about what's missing or ambiguous in the original, then produce the improved version.", "usr": "Improve the prompt below.\n\nWhat I'm trying to get: {GOAL}\nWho the answer is for: {AUDIENCE}\nMy current prompt:\n{PASTE_PROMPT}\n\nWork through it in this order:\n1. Note what's vague, missing or could be read two ways.\n2. Rewrite it with a clear role, task, context, desired format and any constraints.\n3. Add one short example of a good answer if that would help.\n\nReturn: the rewritten prompt, then a one-line note on the main change."}, {"s": "guides", "t": "Keep Data Safe", "use": "Before pasting anything into an AI tool, check what's safe to include.", "tags": ["guidelines", "data-safety"], "sys": "You are a careful adviser on responsible AI use. You default to caution and help people replace anything sensitive with placeholders so the task still works. You reason step by step through what's in the content before giving a verdict, and you never restate the sensitive values back.", "usr": "Check whether this is safe to put into an approved AI tool.\n\nWhat I want to paste: {DESCRIBE_CONTENT}\nTool I'd use: {TOOL}\n\nStep through it:\n1. Identify anything client, personal, commercial or otherwise sensitive.\n2. For each, say whether to remove it or swap it for a placeholder like {CLIENT} or {NAME}.\n3. Produce a safe rewritten version.\n\nReturn: the list of issues, the safe version, and a clear proceed / do-not-proceed."}, {"s": "guides", "t": "Choose the Right Tool", "use": "You're not sure which approved AI tool fits the task.", "tags": ["guidelines"], "sys": "You advise on picking the right approved AI tool, weighing the kind of work against access and policy. You only recommend approved options, reason through the trade-offs before answering, and always defer to current organisational policy.", "usr": "Recommend an approved tool for this task.\n\nTask: {TASK}\nData involved: {DATA — and whether it's sensitive}\nWhere I'm working: {CONTEXT}\n\nReason briefly about fit, data sensitivity and access, then give: a single recommendation, why it beats the alternatives, and what to confirm against policy first."}, {"s": "overview", "t": "Explain a System or Process", "use": "Onboarding someone or briefing a stakeholder.", "tags": ["onboarding"], "sys": "You explain how a system or process works, end to end, pitched at the audience. You only use what you're given; where something isn't stated you say so rather than inventing it.", "usr": "Give a clear overview of {SUBJECT}, based only on the material below.\n\nAudience: {AUDIENCE}\nDetail level: {DETAIL — e.g. one-paragraph brief / step-by-step}\nMaterial:\n{PASTE_CONTEXT}\n\nStructure the answer as:\n1. In one line, what it is and why it exists.\n2. The flow from start to finish, in order.\n3. Who owns what.\n4. The checks a change passes before release.\nFlag anything the material doesn't cover."}, {"s": "overview", "t": "Quick Reference Card", "use": "You want a concise reference for a structure, process or set of rules.", "tags": ["onboarding", "reference"], "sys": "You produce concise, accurate reference cards: the key parts, the attributes that matter, valid values, and the rules. You keep it scannable and never pad.", "usr": "Generate a reference card for {SUBJECT} from the source below.\n\nFocus on: {FOCUS}\nSource:\n{PASTE_MATERIAL}\n\nFormat as a compact table with columns: Part | Purpose | Valid values | Rule or gotcha. After the table, list any rule that doesn't fit a row."}, {"s": "overview", "t": "Onboarding Learning Path", "use": "A new joiner needs a structured ramp-up plan.", "tags": ["onboarding"], "sys": "You design onboarding plans matched to a person's background and the time available, sequencing from the big picture to the hands-on, with a small practical task at each step.", "usr": "Build a {DURATION} onboarding plan for a {ROLE}.\n\nBackground: {BACKGROUND}\nWhat they'll be doing: {WORK}\n\nReturn an ordered, week-by-week (or day-by-day) path. For each step give: the topic, why it matters now, a small hands-on task, and the signal they've got it. End with how they'll know they're ready for real work."}, {"s": "eng", "t": "Explain Unfamiliar Code", "use": "Understanding a pattern or piece of code you didn't write.", "tags": ["engineering"], "sys": "You are a senior engineer who explains unfamiliar code to a capable colleague: intent first, then mechanism, then trade-offs. You reason through the code before summarising, and you never echo back anything resembling secrets or sensitive data.", "usr": "Explain the following to a capable engineer seeing it for the first time:\n\n{PASTE_CODE_OR_DESCRIBE}\n\nReturn, in order:\n1. What it's for, in one or two lines.\n2. How it works, step by step.\n3. The trade-offs or assumptions it makes.\n4. One common mistake to avoid when changing it."}, {"s": "eng", "t": "Review a Change", "use": "Reviewing someone's change before approving it.", "tags": ["engineering", "review"], "sys": "You are a thorough but constructive reviewer. You check correctness, consistency, completeness and risk. You go through the change methodically before summarising, and you phrase every point so it's easy to act on.", "usr": "Review the change below.\n\nWhat it's meant to do: {INTENT}\nThe change:\n{PASTE_DIFF}\n\nGo through it, then return three sections: Looks good, Should change (each with a reason), and Risks / missing checks. End with a clear verdict: approve, approve with changes, or needs work."}, {"s": "eng", "t": "Debug from Symptoms", "use": "Something is failing and you need to narrow down why.", "tags": ["engineering", "debug"], "sys": "You are a methodical debugger. You reason from symptoms to candidate causes ranked by likelihood, propose the cheapest check to confirm or rule out each, and only then suggest a fix. You ask for missing detail rather than guessing wildly.", "usr": "Help me debug this.\n\nSymptom: {SYMPTOM}\nWhat changed recently: {RECENT}\nError / logs:\n{PASTE_LOGS}\n\nThink it through as: likely cause -> the quickest check to confirm it -> the fix if confirmed. Give the top three candidates in that form, most likely first, and say what extra information would most narrow it down."}, {"s": "eng", "t": "Make a Careful Config Edit", "use": "Editing structured config where consistency matters.", "tags": ["engineering"], "sys": "You are a precise editor of structured configuration. You apply changes consistently across every affected section, keep paired entries in sync, and verify nothing collides or goes out of range. You reason about the ripple effects before producing the result, and you bump any version or reference that must change too.", "usr": "Apply the change below to the config.\n\nChange: {CHANGE}\nRules that matter: {RULES — e.g. keep paired entries in sync, bump version}\nConfig:\n{PASTE_CONFIG}\n\nFirst, list every place the change touches and any knock-on effects. Then return the full updated config. Finally, give a short checklist of edits made and anything outside this file that now needs updating."}, {"s": "writing", "t": "Change / PR Description", "use": "Writing up a change for a pull request or record.", "tags": ["writing", "review"], "sys": "You write clear change descriptions: a short rationale, a numbered list of what changed, the area affected, and the reason behind it. You match the team's usual structure and keep it factual.", "usr": "Write a change description.\n\nWhat changed (per file/area): {LIST}\nWhy: {REASON}\nReference: {REFERENCE}\n\nReturn: a one-line title, a two-sentence rationale, then a numbered list of changes grouped by area. Keep it to what a reviewer needs."}, {"s": "writing", "t": "Commit Messages", "use": "Writing individual commit messages.", "tags": ["writing"], "sys": "You write clear git commit messages: one per file, an imperative subject under 72 characters, and a body explaining the change. You never squash multiple files into one message.", "usr": "Write commit messages for these changes.\n\n{LIST — file then what changed}\n\nFor reference, the format is:\n  Subject: imperative, under 72 chars (e.g. \"Add timeout handling to retry loop\")\n  Body: one or two lines on what and why.\nReturn one message per file in that format."}, {"s": "writing", "t": "Tighten / Rewrite Text", "use": "Improving a piece of writing for clarity and tone.", "tags": ["writing"], "sys": "You are a sharp editor. You make writing clearer, tighter and better-pitched for its reader without changing its meaning or stripping the author's voice.", "usr": "Improve the text below.\n\nReader: {AUDIENCE}\nGoal: {GOAL — e.g. inform / persuade / reassure}\nTone: {TONE}\nText:\n{PASTE_TEXT}\n\nReturn two things: the improved version, then up to three bullets naming the main changes and why. Keep my voice."}, {"s": "writing", "t": "Summarise a Long Document", "use": "Getting the essentials out of a long document or thread.", "tags": ["writing"], "sys": "You summarise faithfully — key points, decisions and actions — at the requested length, without adding interpretation the source doesn't support.", "usr": "Summarise the material for {AUDIENCE}.\n\nLength: {LENGTH — e.g. 3 bullets / one paragraph}\nWhat matters most: {FOCUS}\nMaterial:\n{PASTE_MATERIAL}\n\nReturn: the summary at the requested length, then a short list of any decisions or actions it implies. If something important is unclear in the source, flag it rather than guessing."}, {"s": "data", "t": "Read-Only Query Draft", "use": "Writing a query to check data without changing it.", "tags": ["data"], "sys": "You write safe, read-only queries with sensible filters, joining only as needed and avoiding full scans on large tables. You use placeholder names, never real identifiers, and you explain your reasoning.", "usr": "Write a read-only query to answer:\n\nQuestion: {QUESTION}\nContext: {CONTEXT — use placeholders for any identifiers}\n\nFirst state your assumptions about the tables and columns. Then give the query (SELECT only, with filters and indexed date columns). Then explain in one or two lines what the result tells me and any caveat."}, {"s": "data", "t": "Interpret Comparison Output", "use": "Reading before/after or validation output after a change.", "tags": ["data", "review"], "sys": "You interpret comparison and validation output. A clean result shows only the changes intended; unexpected rows mean something else changed. You reason row-group by row-group before giving a verdict.", "usr": "Interpret the output and tell me whether it's clean.\n\nExpected changes: {EXPECTED}\nOutput:\n{PASTE_OUTPUT}\n\nFor each section of output: are these only the expected changes? Explain anything unexpected and its likely cause. End with a verdict: safe to proceed, or investigate (and what to check first)."}, {"s": "data", "t": "Trace Data Lineage", "use": "Tracing how a field flows into downstream uses.", "tags": ["data"], "sys": "You trace data lineage — how a field flows from a store through downstream models and outputs — and assess what would break if it changed. You work outward step by step.", "usr": "Trace how {FIELD} is used downstream.\n\nContext: {CONTEXT}\n\nWork outward from the source: where it's stored -> what reads it -> what those produce -> what depends on that. Present it as that chain, then list what would break if the field were renamed or removed. Use read-only steps and flag any link you're inferring rather than certain of."}, {"s": "broad", "t": "Cross-Area Impact Analysis", "use": "Assessing how one change ripples across everything.", "tags": ["analysis"], "sys": "You trace how a change in one area propagates across a programme, and you identify the single highest-risk dependency. You reason through the chain before summarising.", "usr": "Map the full impact of this change.\n\nChange: {CHANGE}\nArea changed: {AREA}\n\nWork through every area it could touch, in order of the flow. Then return: a numbered list of everything that must change or be re-checked, the sequence to do it in, the validation needed at each step, and the one dependency that carries the most risk."}, {"s": "broad", "t": "Weekly Change Digest", "use": "Summarising what changed for a standup or status note.", "tags": ["analysis", "delivery"], "sys": "You turn raw change history into a concise digest grouped by area, written for a busy reader who wants the signal, not the detail.", "usr": "Summarise activity for {DATE_RANGE}, grouped by area.\n\nSource:\n{PASTE_LIST}\n\nReturn: a short paragraph per area with the headline changes, a list of anything still open or blocked, and one line on what to watch next. Lead each area with its most important item."}, {"s": "broad", "t": "Risk Assessment", "use": "Identifying the highest-risk areas before planning.", "tags": ["analysis", "risk"], "sys": "You rank risk by likelihood and impact and suggest the cheapest mitigation for each, without overstating or inventing detail. You reason about each area before scoring it.", "usr": "Rank the risk areas across {SCOPE}.\n\nContext / recent activity: {CONTEXT}\n\nFor each area, briefly judge likelihood and impact, then present a table: Area | Why it's risky | Likelihood (H/M/L) | Impact (H/M/L) | Cheapest mitigation. Order it by risk-adjusted priority, highest first, and call out the top one to act on now."}, {"s": "broad", "t": "Ad-Hoc Question", "use": "Any one-off question that doesn't fit a template.", "tags": ["analysis"], "sys": "You answer precisely, say which area the answer relates to, and flag anything you're unsure about rather than inventing it.", "usr": "Answer this:\n\n{QUESTION}\n\nDetail level: {DETAIL}\n\nIf the question has several parts, address each in turn. State which area or source the answer relates to, and clearly mark anything you're inferring or unsure about."}, {"s": "finance", "t": "Effort Estimation", "use": "Estimating effort for a batch of work before committing.", "tags": ["delivery"], "sys": "You estimate effort using clear bands, accounting for review and validation overhead, and you state your assumptions. You reason item by item before totalling. This is planning guidance, not financial advice.", "usr": "Estimate effort for the work below.\n\nItems: {LIST}\nUnit: {UNIT — days / story points}\n\nFor each item: name the effort band and the reasoning, then add overhead for review and validation. Present a table: Item | Estimate | Key assumption. Give the total, a risk contingency, and flag the single item most likely to overrun."}, {"s": "finance", "t": "Capacity & Cost Planning", "use": "Planning team size, timeline and cost for a wave of work.", "tags": ["delivery"], "sys": "You translate scope into a phased staffing and timeline plan with clear cost drivers and assumptions. You reason about the critical path before presenting. This is planning guidance, not financial advice.", "usr": "Build a capacity plan for {SCOPE}.\n\nTeam available: {TEAM}\nTarget date: {DATE}\n\nReturn: a phased plan (phase, work, effort, who), the main cost drivers, the critical path, and the top three schedule risks with a mitigation each. State every assumption you relied on."}, {"s": "finance", "t": "Delivery Status Report", "use": "A status report for a steering group or milestone.", "tags": ["delivery", "writing"], "sys": "You write factual, executive delivery status reports: completed, remaining, milestones, risks with a RAG status, and effort actual vs planned. No internal jargon.", "usr": "Write a {PERIOD} status report for {AUDIENCE}.\n\nCompleted: {COMPLETED}\nRemaining: {REMAINING}\nRisks/issues: {RISKS}\nEffort actual vs planned: {EFFORT}\n\nStructure it as: a three-line executive summary, an overall RAG status with one line of justification, progress this period, what's next, risks (each with a RAG and an owner), and a clear ask if a decision is needed."}, {"s": "finance", "t": "Cost-of-Risk", "use": "Quantifying the cost of a risky change or of deferring a fix.", "tags": ["delivery", "risk"], "sys": "You frame risk as probability of rework times rework hours, weighed against the cost of doing nothing. You show the calculation. This is planning guidance, not financial advice.", "usr": "Assess the cost-of-risk for {DECISION}.\n\nContext: {CONTEXT}\n\nWork it through: estimate the rework hours if it goes wrong, a rough probability, and the expected cost (hours x probability). Then estimate the do-nothing cost. Compare the two and recommend whether the extra up-front effort is justified. State your assumptions."}, {"s": "account", "t": "Account Health Check", "use": "Reviewing the state of an account before a check-in or QBR.", "tags": ["account"], "sys": "You assess account health across delivery, relationship, commercial and risk, without overstating. You work only from the facts given and never invent client detail.", "usr": "Assess account health ahead of {EVENT}.\n\nGoing well: {POSITIVES}\nConcerns: {CONCERNS}\nCommercial position: {COMMERCIAL}\nOpen actions: {ACTIONS}\n\nScore each of the four dimensions (delivery, relationship, commercial, risk) as red/amber/green with one line of reasoning. Then give an overall RAG, the top three things to address, and one relationship-building idea."}, {"s": "account", "t": "Stakeholder Map & Plan", "use": "Planning how to engage the people who matter.", "tags": ["account"], "sys": "You map stakeholders by influence and disposition and suggest a tailored engagement approach for each, focused on their priorities. You never assume detail about people you weren't told about.", "usr": "Build a stakeholder engagement plan.\n\nStakeholders (role, what they care about, current disposition): {LIST}\nWhat I need from them: {GOAL}\n\nReturn: a grid placing each on influence (H/M/L) vs support (advocate/neutral/sceptic), then a per-person approach tied to what they care about, then the order to approach them and why."}, {"s": "account", "t": "Client Update / Escalation", "use": "Writing a clear update or raising an issue to a client.", "tags": ["account", "writing"], "sys": "You write measured client communications: lead with the point, be factual about issues, take appropriate ownership without over-apologising, and always include a clear next step.", "usr": "Draft a {TYPE — update / escalation} note to {RECIPIENT}.\n\nSituation: {SITUATION}\nWhat I want them to know or do: {GOAL}\nSensitivities: {NOTES}\n\nGive two versions labelled Direct and Softer. Each should open with the point, be factual, and end with a single clear next step. Keep both short."}, {"s": "meetings", "t": "Meeting Agenda Builder", "use": "Preparing a focused agenda.", "tags": ["meetings"], "sys": "You design agendas with a clear purpose, timeboxed items, owners and a desired outcome per item, cutting anything that doesn't need the room.", "usr": "Build an agenda for a {DURATION} meeting.\n\nPurpose: {PURPOSE}\nAttendees: {ATTENDEES}\nTopics: {TOPICS}\nDecisions needed: {DECISIONS}\n\nReturn a table: Item | Minutes | Owner | Intended outcome, with the minutes adding up to the duration. Put decisions before discussion. End with a one-line pre-read ask."}, {"s": "meetings", "t": "Notes → Actions Summary", "use": "Turning rough notes into a clean summary with owners.", "tags": ["meetings", "writing"], "sys": "You turn rough notes into a clean summary, separating decisions from discussion and naming owners and dates. You never invent attendees, decisions or commitments not in the notes.", "usr": "Summarise the notes.\n\n{PASTE_NOTES}\n\nReturn: two lines of context, a list of decisions made, open questions, and an action table (Action | Owner | Due). Use only what's in the notes; where an owner or date is missing, write 'unassigned' rather than guessing."}, {"s": "meetings", "t": "Follow-Up Email", "use": "A recap and next steps after a meeting.", "tags": ["meetings", "writing"], "sys": "You write concise follow-up emails: recap what was agreed, list next steps with owners, keep it skimmable.", "usr": "Write a follow-up email after {MEETING}.\n\nRecipients: {RECIPIENTS}\nWhat was agreed: {AGREED}\nNext steps: {NEXT_STEPS}\nTone: {TONE}\n\nReturn a subject line and a body of: one-line thanks/context, a short bulleted recap of decisions, a next-steps list with owners and dates, and a closing line. Keep it under 150 words."}, {"s": "meetings", "t": "Difficult Conversation Prep", "use": "Raising something awkward — a delay, a boundary, pushback.", "tags": ["meetings"], "sys": "You help frame a difficult message clearly and respectfully. You think through how the other person is likely to react and prepare responses, while keeping the relationship intact. You offer options, not one script.", "usr": "Help me prepare for a difficult conversation.\n\nSituation: {SITUATION}\nWho with: {PERSON}\nWhat I need to get across: {GOAL}\nWhat I'm worried about: {WORRY}\n\nReturn: how to open in one or two lines, the core message stated plainly, two likely reactions and how to respond to each, and the outcome to aim for. Keep it honest but constructive."}, {"s": "schedule", "t": "Weekly Priority Plan", "use": "Turning a messy to-do list into a focused week.", "tags": ["planning"], "sys": "You plan a productive week, separating important from merely urgent, protecting time for focused work, and staying realistic about how much fits.", "usr": "Help me plan my week.\n\nMust do: {MUST}\nWould like to do: {NICE}\nFixed commitments: {FIXED}\nEnergy / constraints: {NOTES}\n\nFirst sort everything into important-and-urgent, important-not-urgent, and neither. Then give the top three priorities, a day-by-day shape that protects focus time around the fixed commitments, and what to drop or defer if the week gets tight."}, {"s": "schedule", "t": "Timeline / Milestones", "use": "Sketching a timeline for a piece of work.", "tags": ["planning"], "sys": "You build realistic timelines: phases, milestones, dependencies, buffer, and the critical path. You reason about dependencies before laying out dates, and state assumptions rather than promise false precision.", "usr": "Draft a timeline for {WORK}.\n\nStart: {START}\nTarget end: {END}\nDeliverables: {DELIVERABLES}\nDependencies / constraints: {DEPENDENCIES}\n\nWork out the dependency order first. Then present a phased timeline with milestone dates, mark the critical path, list the main risks to the date with a mitigation each, and state your assumptions."}, {"s": "schedule", "t": "Calendar Conflict Triage", "use": "Sorting out a clash or overloaded calendar.", "tags": ["planning"], "sys": "You triage calendar conflicts by weighing importance, who's involved, and what can move, then recommend a clear resolution and a short message to make it happen.", "usr": "Help me resolve this scheduling problem.\n\nThe conflict: {CONFLICT}\nWhat each option costs: {TRADEOFFS}\nWho I'd need to tell: {PEOPLE}\n\nWeigh the options briefly, then give a single recommended resolution with the reasoning, and a short message I can send to reschedule or decline."}, {"s": "general", "t": "Think It Through With Me", "use": "Working through a decision or problem out loud.", "tags": ["thinking"], "sys": "You are a clear-thinking sounding board. You structure a decision before advising and explore more than one option. You ask for missing information rather than guessing, and you don't push a view you can't justify.", "usr": "Help me think through a decision.\n\nThe decision: {DECISION}\nWhat I know: {CONTEXT}\nWhat I'm optimising for: {PRIORITIES}\n\nReturn: the real question in one line, the main options with what each trades off, what extra information would most change the answer, and a tentative recommendation with its reasoning. Note your confidence."}, {"s": "general", "t": "Brainstorm Options", "use": "Generating ideas or approaches for something open-ended.", "tags": ["thinking"], "sys": "You generate a varied, useful set of options across different angles — not just the obvious ones — then help judge them. You aim for range first, then quality.", "usr": "Brainstorm options for {CHALLENGE}.\n\nConstraints: {CONSTRAINTS}\nWhat a good option looks like: {CRITERIA}\n\nFirst give 6 to 8 options spanning genuinely different approaches, including one or two unconventional ones. Then score them against the criteria and pick the three strongest, with a line on why each made the cut."}, {"s": "ws-ehm", "t": "EHM Platform Overview", "use": "Onboarding onto the EHM workstream or briefing a stakeholder.", "tags": ["ehm", "onboarding"], "sys": "You are an expert on an engine health monitoring data platform: source telemetry is ingested, parsed against configuration, processed through a pipeline, stored in a structured data store, and fed to downstream analytics. You explain it at the right level for the audience and only use what you're given, flagging gaps rather than inventing detail.", "usr": "Give a clear overview of the EHM data platform.\n\nAudience: {AUDIENCE}\nDetail level: {DETAIL — one-paragraph brief / step-by-step}\nMaterial:\n{PASTE_CONTEXT}\n\nStructure it as: 1) what the platform does in one line, 2) the flow from raw telemetry to analytics in order, 3) who owns each stage, 4) the checks a change passes before release. Flag anything the material doesn't cover."}, {"s": "ws-ehm", "t": "Parser Config Reference Card", "use": "You need a quick reference for an EHM parser configuration structure.", "tags": ["ehm", "reference"], "sys": "You produce concise, accurate reference cards for parser configuration: the sections, the field attributes that matter (position, length, type, scale, range), valid values and the rules. You keep it scannable and never pad.", "usr": "Generate a reference card for the parser config below.\n\nFocus on: {FOCUS}\nConfig sample:\n{PASTE_CONFIG}\n\nFormat as a table: Field | Purpose | Position/length | Valid values | Rule or gotcha. After the table, note any rule that doesn't fit a row (e.g. paired entries, version conventions)."}, {"s": "ws-ehm", "t": "Positional Shift Correction", "use": "A new telemetry sample has rows added or removed, so positional values must shift consistently.", "tags": ["ehm", "editing"], "sys": "You are a precise editor of positional parser configuration. You shift line/position values consistently across every section, keep paired entries in sync, and verify nothing collides or goes out of range. You list the ripple effects before producing the result and bump the version.", "usr": "Apply a positional shift to the config below.\n\nRule: entries at or beyond position {FROM} change by {AMOUNT} (negative for removals), across every section that carries positional values.\nConfig:\n{PASTE_CONFIG}\nReference sample:\n{PASTE_SAMPLE}\n\nFirst list each place the shift touches. Then return the full updated config. Finally verify: no two entries collide, paired entries stay in sync, boundaries stay in range, version bumped."}, {"s": "ws-ehm", "t": "Scale / Unit Correction", "use": "Decoded EHM values are consistently off by a constant factor.", "tags": ["ehm", "editing"], "sys": "You are an expert on scale factors and unit transforms in parser config. You never double-apply a factor — one mechanism only — keep paired entries in sync, and bump the version. You show your reasoning about the conversion before editing.", "usr": "Correct the scale/unit for the parameter(s) below.\n\nParameter(s) (name, current value, target value, reason): {LIST}\nAuthority for the new value: {SOURCE — non-sensitive reference}\nConfig:\n{PASTE_CONFIG}\n\nReason out the correct factor, then return the updated config using only one mechanism (scale field OR transform), all paired entries updated, version bumped, plus a before/after note for each parameter."}, {"s": "ws-ehm", "t": "Add a Missing Parameter", "use": "A parameter appears in the telemetry sample but is missing from the config.", "tags": ["ehm", "editing"], "sys": "You add parameters to parser config in correct positional order, default them to non-mandatory unless told otherwise, duplicate any paired entries, follow the naming convention, and bump the version.", "usr": "Add the parameter(s) below to the config.\n\nParameters (name, type, position, length, scale, range): {LIST}\nConfig:\n{PASTE_CONFIG}\nSample excerpt:\n{PASTE_SAMPLE}\n\nInsert in ascending positional order, default to non-mandatory unless stated, duplicate paired entries, bump the version. Return the updated config and a one-line summary of each addition."}, {"s": "ws-ehm", "t": "Variant Overlay Config", "use": "Creating a config that overrides the default for a specific variant or case.", "tags": ["ehm", "editing"], "sys": "You build variant overlay configs as complete standalone files that override the default for a specific case, not patches. You keep structure identical to the default except for the stated differences, set the variant identifier, and start the version at 1.", "usr": "Create a variant overlay from the default below.\n\nVariant identifier: {ID — non-sensitive placeholder}\nReason: {REASON}\nDifferences from default: {LIST}\nDefault config:\n{PASTE_DEFAULT}\n\nKeep everything identical to the default except the listed differences, set the identifier, start the version at 1. Return the overlay plus a short list of exactly what differs from the default."}, {"s": "ws-ehm", "t": "Config Syntax & Validation Check", "use": "Before committing an EHM config change, check it for common errors.", "tags": ["ehm", "review"], "sys": "You validate parser config for known error patterns: trailing commas, unbalanced brackets, stray characters, name/filename mismatch, missing required sections, duplicate positions, invalid typed values, and incomplete paired entries. You work through each check methodically.", "usr": "Validate the config below.\n\nConfig:\n{PASTE_CONFIG}\n\nGo through each check in turn and report pass/fail with the location of any issue: syntax, name matches filename, required sections present, paired entries complete, no duplicate positions, valid typed values. End with a verdict: safe to commit, or fix first (listing the fixes)."}, {"s": "ws-ehm", "t": "Parser Not Matching Input", "use": "Telemetry records are being dropped — the runtime isn't matching input to any parser.", "tags": ["ehm", "debug"], "sys": "You are an expert on parser-selection matching. You reason from symptom to candidate cause ranked by likelihood: wrong delimiter, identifier positions off, identification too tight, or an encoding/BOM issue shifting positions. You propose the cheapest check for each.", "usr": "This config isn't matching incoming input. Diagnose why.\n\nSymptom: {SYMPTOM}\nIdentification section:\n{PASTE_IDENTIFICATION}\nSample input (exact positions, first lines):\n{PASTE_SAMPLE}\n\nFor each likely cause, give the quickest check to confirm it, most likely first. Then give the fix once confirmed."}, {"s": "ws-ehm", "t": "Wrong Decoded Values", "use": "EHM records decode but the values are wrong — magnitude, units or truncation.", "tags": ["ehm", "debug"], "sys": "You diagnose field-extraction problems by their signature: off by a constant factor = scale wrong or doubled; truncated = length too short; shifted = position wrong; wrong precision = type issue; text where a number is expected = transform missing. You reason before recommending.", "usr": "Decoded values are wrong for the parameter(s) below. Find the config bug.\n\nParameter(s): {PARAMS}\nObserved vs expected: {DETAIL}\nRaw sample line(s):\n{PASTE_RAW}\nConfig fields:\n{PASTE_FIELDS}\n\nFor each parameter: match the symptom to its signature, give the root cause, the exact fix, and the verification step."}, {"s": "ws-ehm", "t": "Duplicate Parser Conflict", "use": "Two parsers match the same telemetry, causing duplication or misrouting.", "tags": ["ehm", "debug"], "sys": "You resolve parser-selection conflicts where input matches more than one parser. Common causes: a variant with identification identical to the default, a duplicated file, or identifiers relaxed too broadly. You find the minimal distinguishing change.", "usr": "Two parsers match the same input. Resolve the conflict.\n\nSymptom: {SYMPTOM}\nParser 1 identification:\n{PASTE_1}\nParser 2 identification:\n{PASTE_2}\nSample matching both:\n{PASTE_SAMPLE}\n\nIdentify the overlap, decide which should match, and give the smallest identification change that makes selection unambiguous."}, {"s": "ws-ehm", "t": "Pipeline Run & Monitoring", "use": "Triggering or monitoring an EHM processing pipeline run.", "tags": ["ehm"], "sys": "You are an expert on the EHM pipeline orchestration: its staged sequence, each stage's success criteria, common failure points, and post-run verification.", "usr": "Guide me through running and monitoring the pipeline.\n\nScope: {SCOPE}\nEnvironment: {ENV}\nCurrent status: {STATUS_IF_ANY}\n\nReturn: the required input, the stages to monitor in order with the success signal for each, the common failure points to watch, the post-run verification, and the rollback steps if a stage fails."}, {"s": "ws-ehm", "t": "Historic Replay / Backfill", "use": "Running a historic telemetry replay or backfill.", "tags": ["ehm"], "sys": "You are an expert on the EHM historic replay workflow — archive intake, queued processing in shards, merge and validation — where the same processing rules apply as for live data.", "usr": "Guide me through a historic replay.\n\nScope: {SCOPE}\nData range: {DATE_RANGE}\nApproximate volume: {VOLUME}\n\nReturn: how to submit it, how to monitor shard processing, a rough completion estimate, the validation steps afterwards, and how to handle a failed shard without reprocessing everything."}, {"s": "ws-ehm", "t": "Validation Output Interpretation", "use": "Reading the comparison output after an EHM config deploy.", "tags": ["ehm", "review"], "sys": "You interpret EHM config-comparison output. A clean result shows only the intended changes; unexpected rows mean a wrong config was deployed or a regression slipped in. You assess each section before giving a verdict.", "usr": "Interpret the comparison output and tell me if the deploy is clean.\n\nExpected changes: {EXPECTED}\nOutput:\n{PASTE_OUTPUT}\n\nFor each diff section, confirm only expected rows are present and explain anything unexpected with its likely cause. End with a verdict: safe to proceed, or investigate — and what to check first."}, {"s": "ws-ehm", "t": "Count / Volume Anomaly Review", "use": "Checking record counts after an EHM deploy.", "tags": ["ehm", "data"], "sys": "You review record-count comparisons after a deploy. Counts should stay stable or rise; a drop usually means a change is too restrictive or has a structural error preventing matching. You reason per grouping before concluding.", "usr": "Review the count comparison and flag anomalies.\n\nBaseline: {BEFORE}\nCurrent: {AFTER}\nChange context: {CONTEXT}\n\nFor each grouping, state whether counts rose, held or fell, flag unexpected drops or zeros, and say whether the delta matches the change. End with the actions to take."}, {"s": "ws-ehm", "t": "Change Effort Estimate (EHM)", "use": "Estimating effort for a batch of EHM config changes before a sprint.", "tags": ["ehm", "delivery"], "sys": "You estimate EHM config effort using clear bands, accounting for validation-gate and review overhead, paired-entry duplication, and reference-document sync. You reason item by item before totalling. This is planning guidance, not financial advice.", "usr": "Estimate effort for the EHM change batch below.\n\nChanges: {LIST}\nUnit: {UNIT — days / story points}\n\nFor each item, name the effort band with reasoning, then add overhead for validation and review. Present a table: Change | Estimate | Key assumption. Give the total, a risk contingency, and flag the change most likely to overrun."}];
+
+/* ---------- state ---------- */
+let prompts=[];          // {id, s, ws[], t, use, sys, usr, tags[]}
+let stats={};            // id -> {avg, cnt}
+let feedbackMap={};      // id -> [{body, ts}]
+let customSections=[];   // sections created at runtime via "new section"
+let activeTag=null, query="";
+
+const $=id=>document.getElementById(id);
+const main=$("main"), toc=$("toc"), empty=$("empty"), count=$("count"), banner=$("banner");
+
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escAttr(s){return esc(s).replace(/"/g,'&quot;');}
+function allSections(){return BASE_SECTIONS.concat(customSections);}
+function wsTitle(id){const s=allSections().find(x=>x.id===id);return s?s.title:id;}
+
+/* ---------- static pages ---------- */
+$("toolsBody").innerHTML=TOOLS.map(t=>`<tr><td><b>${t[0]}</b></td><td>${t[1]}</td><td>${t[2]}</td><td>${t[3]}</td><td>${t[4]}</td></tr>`).join('');
+$("peTechniques").innerHTML=TECHNIQUES.map(t=>`<div class="pe-card"><h4>${t.h}</h4><p>${t.p}</p><div class="ex"><b>Example</b>${esc(t.ex)}</div></div>`).join('');
+$("pePatterns").innerHTML=PATTERNS.map(t=>`<div class="pe-card"><h4>${t.h}</h4><p>${t.p}</p></div>`).join('');
+
+/* ---------- page nav ---------- */
+const libControls=$("libControls");
+document.querySelectorAll('.pagenav button').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('.pagenav button').forEach(x=>x.classList.toggle('active',x===b));
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    $("page-"+b.dataset.page).classList.add('active');
+    libControls.style.display=(b.dataset.page==='library')?'':'none';
+    window.scrollTo({top:0});
+  };
+});
+
+/* ---------- data layer (Supabase REST, with offline fallback) ---------- */
+async function loadData(){
+  if(!LIVE){
+    banner.textContent="Demo mode — not connected to the shared database. Prompts are read-only and additions won't be saved. Set SUPABASE_URL and SUPABASE_ANON in the page to go live.";
+    banner.classList.add('show');
+    prompts=FALLBACK_PROMPTS.map((p,i)=>({id:'demo'+i,s:p.s,ws:p.ws||[],t:p.t,use:p.use,sys:p.sys,usr:p.usr,tags:p.tags||[]}));
+    return;
+  }
+  try{
+    const [pr,st,fb]=await Promise.all([
+      fetch(`${REST}/prompts?status=eq.approved&select=*&order=created_at.asc`,{headers:HEAD}).then(r=>r.json()),
+      fetch(`${REST}/prompt_rating_stats?select=*`,{headers:HEAD}).then(r=>r.json()),
+      fetch(`${REST}/feedback?select=prompt_id,body,created_at&order=created_at.asc`,{headers:HEAD}).then(r=>r.json())
+    ]);
+    prompts=pr.map(p=>({id:p.id,s:p.section,ws:p.workstreams||[],t:p.title,use:p.use_when,sys:p.system_prompt,usr:p.user_template,tags:p.tags||[]}));
+    stats={}; st.forEach(s=>stats[s.prompt_id]={avg:+s.avg,cnt:+s.cnt});
+    feedbackMap={}; fb.forEach(f=>{(feedbackMap[f.prompt_id]=feedbackMap[f.prompt_id]||[]).push({body:f.body,ts:new Date(f.created_at).toLocaleString()});});
+  }catch(e){
+    banner.textContent="Couldn't reach the shared database — showing the bundled copy read-only. Check your connection or config.";
+    banner.classList.add('show');
+    prompts=FALLBACK_PROMPTS.map((p,i)=>({id:'demo'+i,s:p.s,ws:p.ws||[],t:p.t,use:p.use,sys:p.sys,usr:p.usr,tags:p.tags||[]}));
+  }
+}
+
+async function submitPrompt(rec){
+  const body={section:rec.s,workstreams:rec.ws,title:rec.t,use_when:rec.use,system_prompt:rec.sys,user_template:rec.usr,tags:rec.tags,status:'pending'};
+  const r=await fetch(`${REST}/prompts`,{method:'POST',headers:{...HEAD,Prefer:'return=minimal'},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error('submit failed');
+}
+async function postRating(id,value){
+  const r=await fetch(`${REST}/ratings`,{method:'POST',headers:{...HEAD,Prefer:'return=minimal'},body:JSON.stringify({prompt_id:id,value})});
+  if(!r.ok) throw new Error('rating failed');
+}
+async function refreshStat(id){
+  const s=await fetch(`${REST}/prompt_rating_stats?prompt_id=eq.${id}&select=*`,{headers:HEAD}).then(r=>r.json());
+  stats[id]=s[0]?{avg:+s[0].avg,cnt:+s[0].cnt}:{avg:0,cnt:0};
+}
+async function postFeedback(id,bodyText){
+  const r=await fetch(`${REST}/feedback`,{method:'POST',headers:{...HEAD,Prefer:'return=minimal'},body:JSON.stringify({prompt_id:id,body:bodyText})});
+  if(!r.ok) throw new Error('feedback failed');
+}
+
+/* ---------- render ---------- */
+function render(){
+  const total=prompts.length;
+  const wsCount=allSections().filter(s=>s.group==='project').length;
+  $("stats").innerHTML=
+    `<div class="stat"><b>${total}</b><small>Prompts</small></div>`+
+    `<div class="stat"><b>${allSections().length}</b><small>Sections</small></div>`+
+    `<div class="stat"><b>${wsCount}</b><small>Workstreams</small></div>`+
+    `<div class="stat"><b>${TOOLS.length}</b><small>Approved tools</small></div>`;
+
+  const counts={};
+  prompts.forEach(p=>(p.tags||[]).forEach(t=>counts[t]=(counts[t]||0)+1));
+  const tags=Object.keys(counts).sort();
+  $("tagchips").innerHTML=
+    `<button class="chip${!activeTag?' on':''}" data-tag="__all">All <span class="ct">${total}</span></button>`+
+    tags.map(t=>`<button class="chip${activeTag===t?' on':''}" data-tag="${escAttr(t)}">${esc(t)} <span class="ct">${counts[t]}</span></button>`).join('');
+  $("activeTagLabel").textContent=activeTag?('· '+activeTag):'';
+
+  toc.innerHTML=''; main.querySelectorAll('.group').forEach(g=>g.remove());
+  let shown=0,lastGroup=null; const shownIds=new Set(); const visibleTotal=prompts.length;
+
+  allSections().forEach(sec=>{
+    if(sec.group!==lastGroup){
+      const h=document.createElement('div');h.className='toc-h';
+      h.textContent=sec.group==='project'?'Projects / Workstreams':'General';
+      toc.appendChild(h);lastGroup=sec.group;
+    }
+    const items=prompts.filter(p=>p.s===sec.id||(p.ws||[]).includes(sec.id));
+    const btn=document.createElement('button');
+    btn.innerHTML=`<span><span class="n">${sec.n}</span> ${esc(sec.title)}</span><span class="n">${items.length}</span>`;
+    btn.onclick=()=>$("grp-"+sec.id)?.scrollIntoView({block:'start'});
+    toc.appendChild(btn);
+
+    const grp=document.createElement('section');
+    grp.className='group';grp.id='grp-'+sec.id;
+    grp.innerHTML=`<div class="group-head${sec.group==='project'?' project':''}"><span class="gn">${sec.n}</span><h2>${esc(sec.title)}</h2><span class="gdesc">${esc(sec.desc||'')}</span></div>`;
+    let any=false;
+    items.forEach((p,idx)=>{
+      const display=sec.n+'.'+(idx+1);
+      const matchTag=!activeTag||(p.tags||[]).includes(activeTag);
+      const hay=(display+' '+p.t+' '+p.use+' '+p.sys+' '+p.usr+' '+(p.tags||[]).join(' ')+' '+sec.title).toLowerCase();
+      const matchQ=!query||hay.includes(query);
+      if(matchTag&&matchQ){grp.appendChild(card(p,display));any=true;shownIds.add(p.id);}
+    });
+    if(any){main.appendChild(grp);}
+    else if(sec.group==='project'&&!query&&!activeTag){
+      const note=document.createElement('div');note.className='empty-note';
+      note.textContent='No prompts here yet — use ＋ Add prompt to add the first one for this workstream.';
+      grp.appendChild(note);main.appendChild(grp);
+    }
+  });
+  shown=shownIds.size;
+  count.textContent=(query||activeTag)?`${shown} shown`:`${visibleTotal} prompts`;
+  empty.style.display=((query||activeTag)&&shown===0)?'block':'none';
+}
+
+function starsHtml(id){const s=stats[id];const avg=s&&s.cnt?s.avg:0;let h='';for(let i=1;i<=5;i++)h+=`<span class="star${i<=Math.round(avg)?' fill':''}" data-star="${i}">★</span>`;return h;}
+function avgLabel(id){const s=stats[id];return (!s||!s.cnt)?'not yet rated':s.avg.toFixed(1)+' ★ ('+s.cnt+')';}
+
+function card(p,display){
+  const el=document.createElement('article');
+  el.className='card';el.dataset.id=p.id;
+  const fb=feedbackMap[p.id]||[];
+  const wsHtml=(p.ws||[]).map(id=>`<span class="tag ws">▣ ${esc(wsTitle(id))}</span>`).join('');
+  const tagHtml=(p.tags||[]).map(t=>`<span class="tag" data-tag="${escAttr(t)}">${esc(t)}</span>`).join('');
+  const chips=wsHtml+tagHtml;
+  const canWrite=LIVE;
+  el.innerHTML=`
+    <div class="card-head">
+      <div class="cid">${display}</div>
+      <div class="ctitle-wrap">
+        <div class="ctitle">${esc(p.t)}</div>
+        <div class="cuse"><b>Use when:</b> ${esc(p.use)}</div>
+        ${chips?`<div class="tags">${chips}</div>`:''}
+      </div>
+      <div class="avg">${avgLabel(p.id)}</div>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="block"><div class="block-label"><span>System prompt</span><button class="copy" data-copy="sys">Copy</button></div><pre>${esc(p.sys)}</pre></div>
+      <div class="block"><div class="block-label"><span>User template</span><button class="copy" data-copy="usr">Copy</button></div><pre>${esc(p.usr)}</pre></div>
+      <div class="meta">
+        <div class="rate"><span class="lbl">Rate</span><span class="stars">${starsHtml(p.id)}</span></div>
+        <button class="fb-toggle">Feedback (${fb.length})</button>
+      </div>
+      <div class="fb-panel">
+        <div class="fb-list">${fb.map(f=>`<div class="fb-item">${esc(f.body)}<span class="ts">${esc(f.ts||'')}</span></div>`).join('')||'<div class="note">No feedback yet.</div>'}</div>
+        ${canWrite?`<div class="fb-form"><textarea placeholder="What worked, what to improve…"></textarea><button class="btn fb-submit">Add</button></div>`:`<div class="note">Connect the database to add feedback.</div>`}
+      </div>
+    </div>`;
+  return el;
+}
+
+const lookup=()=>{const m={};prompts.forEach(p=>m[p.id]=p);return m;};
+main.addEventListener('click',async e=>{
+  const tagEl=e.target.closest('.tag');
+  if(tagEl&&tagEl.dataset.tag){activeTag=(activeTag===tagEl.dataset.tag)?null:tagEl.dataset.tag;render();return;}
+  const cardEl=e.target.closest('.card');if(!cardEl)return;
+  const id=cardEl.dataset.id;const p=lookup()[id];
+  if(e.target.closest('.copy')){e.stopPropagation();copyText(e.target,e.target.dataset.copy==='sys'?p.sys:p.usr);return;}
+  if(e.target.closest('.star')){
+    e.stopPropagation();
+    if(!LIVE){alert('Connect the database to rate prompts.');return;}
+    const v=+e.target.dataset.star;
+    try{await postRating(id,v);await refreshStat(id);cardEl.querySelector('.stars').innerHTML=starsHtml(id);cardEl.querySelector('.avg').textContent=avgLabel(id);}
+    catch(err){alert('Could not save your rating.');}
+    return;
+  }
+  if(e.target.closest('.fb-toggle')){e.stopPropagation();cardEl.querySelector('.fb-panel').classList.toggle('open');return;}
+  if(e.target.closest('.fb-submit')){
+    e.stopPropagation();
+    const ta=cardEl.querySelector('.fb-form textarea');const text=ta.value.trim();if(!text)return;
+    try{
+      await postFeedback(id,text);
+      (feedbackMap[id]=feedbackMap[id]||[]).push({body:text,ts:new Date().toLocaleString()});
+      ta.value='';
+      const list=feedbackMap[id];
+      cardEl.querySelector('.fb-list').innerHTML=list.map(f=>`<div class="fb-item">${esc(f.body)}<span class="ts">${esc(f.ts||'')}</span></div>`).join('');
+      cardEl.querySelector('.fb-toggle').textContent=`Feedback (${list.length})`;
+    }catch(err){alert('Could not save your feedback.');}
+    return;
+  }
+  if(e.target.closest('.card-head'))cardEl.classList.toggle('open');
+});
+main.addEventListener('mouseover',e=>{if(e.target.classList.contains('star')){const v=+e.target.dataset.star;e.target.parentElement.querySelectorAll('.star').forEach(s=>s.classList.toggle('hv',+s.dataset.star<=v));}});
+main.addEventListener('mouseout',e=>{if(e.target.classList.contains('star'))e.target.parentElement.querySelectorAll('.star').forEach(s=>s.classList.remove('hv'));});
+function copyText(btn,text){navigator.clipboard.writeText(text).then(()=>{const o=btn.textContent;btn.textContent='Copied';btn.classList.add('done');setTimeout(()=>{btn.textContent=o;btn.classList.remove('done');},1400);}).catch(()=>{btn.textContent='⌘C';});}
+
+$("tagchips").addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;const t=c.dataset.tag;activeTag=(t==='__all'||activeTag===t)?null:t;render();});
+$("search").addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();render();});
+
+/* ---------- modal ---------- */
+const overlay=$("overlay"),secSel=$("f-section"),newSecFields=$("newSecFields");
+function fillSectionSelect(){
+  const gen=allSections().filter(s=>s.group==='general');
+  const proj=allSections().filter(s=>s.group==='project');
+  secSel.innerHTML=
+    `<optgroup label="General">`+gen.map(s=>`<option value="${s.id}">${esc(s.title)}</option>`).join('')+`</optgroup>`+
+    `<optgroup label="Projects / Workstreams">`+proj.map(s=>`<option value="${s.id}">${esc(s.title)}</option>`).join('')+`</optgroup>`+
+    `<option value="__new">＋ New section…</option>`;
+  $("f-ws").innerHTML=proj.map(s=>`<option value="${s.id}">${esc(s.title)}</option>`).join('');
+}
+function openModal(){
+  if(!LIVE){alert('Connect the database (set SUPABASE_URL and SUPABASE_ANON) to add prompts.');return;}
+  fillSectionSelect();newSecFields.classList.remove('show');overlay.classList.add('open');
+}
+function closeModal(){overlay.classList.remove('open');['f-title','f-use','f-sys','f-usr','f-tags','f-secTitle'].forEach(id=>$(id).value='');[...$("f-ws").options].forEach(o=>o.selected=false);}
+$("addBtn").onclick=openModal;
+$("closeModal").onclick=closeModal;
+$("cancelModal").onclick=closeModal;
+overlay.addEventListener('click',e=>{if(e.target===overlay)closeModal();});
+secSel.addEventListener('change',()=>{newSecFields.classList.toggle('show',secSel.value==='__new');});
+$("saveModal").onclick=async()=>{
+  const title=$("f-title").value.trim(),sys=$("f-sys").value.trim(),usr=$("f-usr").value.trim();
+  if(!title||!sys||!usr){alert('Please add at least a title, system prompt and user template.');return;}
+  let secId=secSel.value;
+  if(secId==='__new'){
+    const st=$("f-secTitle").value.trim();
+    if(!st){alert('Please name the new section.');return;}
+    const n=String(BASE_SECTIONS.length+customSections.length+1).padStart(2,'0');
+    secId='c'+Date.now();
+    customSections.push({n,id:secId,group:'general',title:st,desc:''});
+  }
+  const tags=$("f-tags").value.split(',').map(t=>t.trim().toLowerCase()).filter(Boolean);
+  const ws=[...$("f-ws").selectedOptions].map(o=>o.value);
+  const btn=$("saveModal");btn.disabled=true;btn.textContent='Submitting…';
+  try{
+    await submitPrompt({s:secId,ws,t:title,use:$("f-use").value.trim()||'—',sys,usr,tags});
+    closeModal();
+    alert('Thanks — your prompt has been submitted. It will appear once a maintainer approves it.');
+  }catch(err){alert('Could not submit your prompt. Please try again.');}
+  btn.disabled=false;btn.textContent='Submit prompt';
+};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('open'))closeModal();});
+
+/* ---------- boot ---------- */
+(async()=>{await loadData();render();})();
+</script>
+</body>
+</html>
