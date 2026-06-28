@@ -896,20 +896,25 @@ document.getElementById('verifyBtn').addEventListener('click',async()=>{
   }
   const btn=document.getElementById('verifyBtn');
   btn.disabled=true;btn.textContent='Verifying…';
-  const {data,error}=await supabaseClient.auth.verifyOtp({email:pendingEmail,token:code,type:'email'});
+  // Try type:'email' first, fall back to type:'magiclink'
+  let {data,error}=await supabaseClient.auth.verifyOtp({email:pendingEmail,token:code,type:'email'});
   if(error){
-    msg.textContent='Invalid or expired code. Request a new one.';msg.style.color='var(--warn)';msg.style.display='block';
+    const r2=await supabaseClient.auth.verifyOtp({email:pendingEmail,token:code,type:'magiclink'});
+    data=r2.data;error=r2.error;
+  }
+  if(error){
+    msg.textContent=error.message||'Invalid or expired code. Request a new one.';
+    msg.style.color='var(--warn)';msg.style.display='block';
     btn.disabled=false;btn.textContent='Sign in';
   }else{
-    // verifyOtp may return session directly or fire onAuthStateChange first.
-    // Wait briefly for the event, then fall back to getSession().
     if(data?.session){await startApp(data.session);return;}
-    await new Promise(r=>setTimeout(r,600));
+    await new Promise(r=>setTimeout(r,2000));
     if(appStarted)return;
     const {data:{session:s}}=await supabaseClient.auth.getSession();
     if(s){await startApp(s);}
     else{
-      msg.textContent='Could not sign in — please request a new code.';msg.style.color='var(--warn)';msg.style.display='block';
+      msg.textContent='Verification timed out — please request a new code.';
+      msg.style.color='var(--warn)';msg.style.display='block';
       btn.disabled=false;btn.textContent='Sign in';
     }
   }
