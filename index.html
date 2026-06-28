@@ -891,20 +891,30 @@ document.getElementById('verifyBtn').addEventListener('click',async()=>{
   }
   const btn=document.getElementById('verifyBtn');
   btn.disabled=true;btn.textContent='Verifying…';
-  const {error}=await supabaseClient.auth.verifyOtp({email:pendingEmail,token:code,type:'email'});
-  if(error){
-    msg.textContent=error.message||'Invalid or expired code. Request a new one.';
-    msg.style.color='var(--warn)';msg.style.display='block';
-    btn.disabled=false;btn.textContent='Sign in';
-    return;
+  // Supabase logs show signInWithOtp as 'user_recovery_requested' for existing users
+  // so the correct verifyOtp type is 'recovery'. Try all three types in sequence.
+  const types=['recovery','email','magiclink'];
+  let lastError=null;
+  for(const type of types){
+    const timeout=new Promise(res=>setTimeout(()=>res({data:null,error:{message:'timeout'}}),6000));
+    const attempt=supabaseClient.auth.verifyOtp({email:pendingEmail,token:code,type});
+    const {data,error}=await Promise.race([attempt,timeout]);
+    if(!error){
+      // Verification accepted — poll for session
+      for(let i=0;i<20;i++){
+        const {data:{session}}=await supabaseClient.auth.getSession();
+        if(session){await startApp(session);return;}
+        await new Promise(r=>setTimeout(r,500));
+      }
+      msg.textContent='Signed in but session not found — please reload.';
+      msg.style.color='var(--warn)';msg.style.display='block';
+      btn.disabled=false;btn.textContent='Sign in';
+      return;
+    }
+    lastError=error;
+    if(error.message==='timeout')break; // network hung — don't retry
   }
-  // Poll for session — verifyOtp succeeds server-side before SDK stores the session locally
-  for(let i=0;i<20;i++){
-    const {data:{session}}=await supabaseClient.auth.getSession();
-    if(session){await startApp(session);return;}
-    await new Promise(r=>setTimeout(r,500));
-  }
-  msg.textContent='Verification timed out — please request a new code.';
+  msg.textContent=(lastError?.message==='timeout'?'Request timed out — check connection.':lastError?.message)||'Invalid or expired code.';
   msg.style.color='var(--warn)';msg.style.display='block';
   btn.disabled=false;btn.textContent='Sign in';
 });
