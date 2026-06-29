@@ -367,8 +367,12 @@ const LIVE = SUPABASE_URL.startsWith("http") && !SUPABASE_ANON.startsWith("YOUR_
 const REST = SUPABASE_URL + "/rest/v1";
 const HEAD = {apikey:SUPABASE_ANON, Authorization:"Bearer "+SUPABASE_ANON, "Content-Type":"application/json"};
 
+const _storage = (() => {
+  try { sessionStorage.setItem('_t','1'); sessionStorage.removeItem('_t'); return sessionStorage; }
+  catch(e) { const s={}; return { getItem:k=>s[k]??null, setItem:(k,v)=>s[k]=v, removeItem:k=>delete s[k] }; }
+})();
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
-  auth: { storage: window.sessionStorage, persistSession: true }
+  auth: { storage: _storage, persistSession: true, flowType: 'implicit' }
 });
 let currentSession = null;
 let isAdmin = false;
