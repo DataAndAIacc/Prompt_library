@@ -188,49 +188,11 @@
 </style>
 </head>
 <body>
-<div id="loginScreen" style="position:fixed;inset:0;z-index:200;background:var(--paper);display:flex;align-items:center;justify-content:center;">
-  <div style="text-align:center;max-width:360px;padding:48px 32px;background:var(--surface);border:1px solid var(--line-strong);">
-    <div style="font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;">Rolls-Royce · Accenture</div>
-    <h2 style="font-family:var(--display);font-size:26px;font-weight:600;margin:0 0 10px;letter-spacing:-.01em;">Prompt Library</h2>
-    <!-- Step 1: email -->
-    <div id="loginStep1">
-      <p id="loginDesc" style="color:var(--muted);font-size:14px;margin:0 0 6px;">Sign in with your Accenture email.</p>
-      <p style="color:var(--faint);font-size:12px;font-family:var(--mono);margin:0 0 24px;">@accenture.com addresses only</p>
-      <input id="loginEmail" type="email" placeholder="you@accenture.com" autocomplete="email"
-        style="width:100%;font-family:var(--mono);font-size:13px;padding:10px 12px;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);margin-bottom:10px;">
-      <input id="loginPassword" type="password" placeholder="password" autocomplete="current-password"
-        style="width:100%;font-family:var(--mono);font-size:13px;padding:10px 12px;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);margin-bottom:10px;">
-      <div id="loginConfirmWrap" style="display:none;">
-        <input id="loginConfirm" type="password" placeholder="confirm password" autocomplete="new-password"
-          style="width:100%;font-family:var(--mono);font-size:13px;padding:10px 12px;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);margin-bottom:10px;">
-      </div>
-      <button id="signInBtn" class="btn" style="width:100%;padding:12px 24px;font-size:13px;">Sign in</button>
-      <button id="toggleModeBtn" style="margin-top:10px;background:none;border:none;color:var(--muted);font-size:12px;font-family:var(--mono);cursor:pointer;text-decoration:underline;">New here? Create an account</button>
-    </div>
-    <div id="loginMsg" style="margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--muted);display:none;"></div>
-  </div>
-</div>
 <header class="hero">
   <div class="hero-inner">
     <div id="userBar" style="display:none;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:10px;">
       <span id="userEmailDisplay" style="font-family:var(--mono);font-size:12px;color:var(--muted);"></span>
-      <button id="changePwBtn" class="btn ghost" style="font-size:11px;padding:5px 12px;">Change password</button>
       <button id="signOutBtn" class="btn ghost" style="font-size:11px;padding:5px 12px;">Sign out</button>
-    </div>
-    <!-- Change password modal -->
-    <div id="changePwModal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.4);align-items:center;justify-content:center;">
-      <div style="background:var(--surface);border:1px solid var(--line-strong);padding:32px;max-width:340px;width:100%;text-align:left;">
-        <h3 style="font-size:15px;font-weight:600;margin:0 0 20px;">Change password</h3>
-        <input id="newPw1" type="password" placeholder="new password (8+ characters)" autocomplete="new-password"
-          style="width:100%;font-family:var(--mono);font-size:13px;padding:10px 12px;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);margin-bottom:10px;">
-        <input id="newPw2" type="password" placeholder="confirm new password" autocomplete="new-password"
-          style="width:100%;font-family:var(--mono);font-size:13px;padding:10px 12px;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);margin-bottom:10px;">
-        <div id="changePwMsg" style="font-family:var(--mono);font-size:12px;margin-bottom:10px;display:none;"></div>
-        <div style="display:flex;gap:8px;">
-          <button id="changePwSaveBtn" class="btn" style="flex:1;font-size:13px;padding:10px;">Save</button>
-          <button id="changePwCancelBtn" class="btn ghost" style="font-size:13px;padding:10px;">Cancel</button>
-        </div>
-      </div>
     </div>
     <div class="eyebrow">Rolls-Royce · AI Prompt Library</div>
     <h1>Reusable prompts for your work on the account.</h1>
@@ -244,6 +206,7 @@
     <button data-page="library" class="active">Prompt Library</button>
     <button data-page="pe">Prompt Engineering</button>
     <button data-page="tools">Approved Tools</button>
+    <button data-page="config">Personal Config</button>
     <button data-page="admin">Admin</button>
   </div>
 </nav>
@@ -287,10 +250,118 @@
     <p class="note">Tooling and access routes change — confirm against current organisational policy before use.</p>
   </div>
 </div>
+<!-- ======== PERSONAL CONFIG PAGE ======== -->
+<div class="page" id="page-config">
+  <div class="pe-wrap" style="max-width:1000px;">
+    <h1 style="font-family:var(--display);font-weight:600;font-size:28px;margin:6px 0 10px;">Personal config — start here.</h1>
+    <p class="pe-intro">Personal Configuration lets you give standing instructions about your preferences, role, working style and communication needs, so responses stay consistent across future chats. Set it once; every new chat starts from the same brief.</p>
+
+    <div class="pe-sub">What to include</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:34px;">
+      <div class="pe-card">
+        <h4><span style="font-family:var(--mono);font-size:12px;color:var(--accent);margin-right:8px;">01</span>Role &amp; context</h4>
+        <div class="ex"><b>Example</b>"I am a consultant working with mixed technical and business audiences."</div>
+      </div>
+      <div class="pe-card">
+        <h4><span style="font-family:var(--mono);font-size:12px;color:var(--accent);margin-right:8px;">02</span>Language</h4>
+        <div class="ex"><b>Example</b>"Use British spelling and UK date formats."</div>
+      </div>
+      <div class="pe-card">
+        <h4><span style="font-family:var(--mono);font-size:12px;color:var(--accent);margin-right:8px;">03</span>Response style</h4>
+        <div class="ex"><b>Example</b>"Be concise, direct and professional. Lead with the answer."</div>
+      </div>
+      <div class="pe-card">
+        <h4><span style="font-family:var(--mono);font-size:12px;color:var(--accent);margin-right:8px;">04</span>Structure</h4>
+        <div class="ex"><b>Example</b>"Use headings and bullets when they genuinely improve readability."</div>
+      </div>
+      <div class="pe-card">
+        <h4><span style="font-family:var(--mono);font-size:12px;color:var(--accent);margin-right:8px;">05</span>Quality bar</h4>
+        <div class="ex"><b>Example</b>"Separate facts from assumptions. Flag uncertainty and do not invent details."</div>
+      </div>
+    </div>
+
+    <div class="pe-sub">Copy-paste starter brief</div>
+    <p style="color:var(--muted);font-size:13.5px;margin:0 0 14px;">Paste into any of the three tools below, then edit the bracketed parts.</p>
+    <div style="position:relative;background:var(--surface);border:1px solid var(--line);margin-bottom:34px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 0;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);">
+        <span>Starter brief</span>
+        <button class="copy" id="copyBrief">Copy</button>
+      </div>
+      <pre id="starterBrief" style="margin:0;padding:14px;">Role: I am a [role] at [team], working with [audience].
+Language: Use British English, UK date formats and metric units.
+Tone: Be concise, direct and professional. Lead with the answer, then give supporting detail.
+Format: Use short paragraphs; use headings or bullets only when they aid readability. Keep tables for comparisons.
+Quality: Separate fact from assumption, flag uncertainty and do not invent sources, figures or quotes.
+Ask: If my request is ambiguous, ask one clarifying question before answering.</pre>
+    </div>
+
+    <div class="pe-sub">Setup guide — per tool</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
+
+      <div class="pe-card" style="padding:0;overflow:hidden;">
+        <div style="background:var(--ink);padding:14px 18px;">
+          <span style="font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#aeb6bb;">Tool</span>
+          <h4 style="font-family:var(--display);font-size:17px;font-weight:600;color:#fff;margin:4px 0 0;">Claude</h4>
+        </div>
+        <div style="padding:16px 18px;">
+          <p style="font-size:13px;color:var(--muted);margin:0 0 14px;">Claude keeps account-wide preferences in your profile, so every new chat starts from the same brief.</p>
+          <ol style="margin:0;padding-left:18px;font-size:13.5px;display:flex;flex-direction:column;gap:8px;">
+            <li>Select your profile icon in Claude, then open <b>Settings</b>.</li>
+            <li>Under <b>General</b>, scroll to <b>Instructions for Claude</b>.</li>
+            <li>Enter your instructions in the text box. Changes save automatically.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="pe-card" style="padding:0;overflow:hidden;">
+        <div style="background:var(--ink);padding:14px 18px;">
+          <span style="font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#aeb6bb;">Tool</span>
+          <h4 style="font-family:var(--display);font-size:17px;font-weight:600;color:#fff;margin:4px 0 0;">ChatGPT Business</h4>
+        </div>
+        <div style="padding:16px 18px;">
+          <p style="font-size:13px;color:var(--muted);margin:0 0 14px;">Use custom instructions for persistent preferences such as your role, language, tone and response format.</p>
+          <ol style="margin:0;padding-left:18px;font-size:13.5px;display:flex;flex-direction:column;gap:8px;">
+            <li>Open your profile and select <b>Settings</b>.</li>
+            <li>Select <b>Personalization</b>.</li>
+            <li>Enter your custom instructions, then test them in a new chat.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="pe-card" style="padding:0;overflow:hidden;">
+        <div style="background:var(--ink);padding:14px 18px;">
+          <span style="font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#aeb6bb;">Tool</span>
+          <h4 style="font-family:var(--display);font-size:17px;font-weight:600;color:#fff;margin:4px 0 0;">Microsoft Copilot</h4>
+        </div>
+        <div style="padding:16px 18px;">
+          <p style="font-size:13px;color:var(--muted);margin:0 0 14px;">Copilot is built into Microsoft 365 and already works with your files, emails and meetings. Personal config shapes how it writes back to you, not what it can see.</p>
+          <ol style="margin:0;padding-left:18px;font-size:13.5px;display:flex;flex-direction:column;gap:8px;">
+            <li>Open Copilot Chat and sign in with your Microsoft 365 account.</li>
+            <li>Select <b>Settings</b> and choose <b>Personalization</b>.</li>
+            <li>Toggle on <b>Custom instructions</b>, open it, then enter your brief and save.</li>
+          </ol>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
 <!-- ======== ADMIN PAGE ======== -->
 <div class="page" id="page-admin">
   <div class="admin-wrap">
-    <div id="adminPanel">
+    <div id="adminLoginBox" class="admin-lock-box" style="display:none;">
+      <h2>Admin sign in</h2>
+      <p>Sign in with your admin account to review and manage prompts.</p>
+      <div id="adminLoginWarn" class="admin-lock-warn" style="display:none;"></div>
+      <div class="field" style="margin-top:14px;"><label>Email</label>
+        <input id="adminEmail" type="email" placeholder="you@accenture.com" autocomplete="username">
+      </div>
+      <div class="field"><label>Password</label>
+        <input id="adminPw" type="password" placeholder="Password" autocomplete="current-password">
+      </div>
+      <button class="btn" id="adminLoginBtn" style="width:100%;padding:10px;">Sign in</button>
+    </div>
+    <div id="adminPanel" style="display:none;">
       <div class="admin-bar">
         <h2>Prompt management</h2>
         <span class="pending-badge" id="adminPendingBadge" style="display:none"></span>
@@ -409,7 +480,7 @@ let prompts=[];          // {id, s, ws[], t, use, sys, usr, tags[]}
 let stats={};            // id -> {avg, cnt}
 let feedbackMap={};      // id -> [{body, ts}]
 let customSections=[];   // sections created at runtime via "new section"
-let activeTag=null, query="";
+let activeTags=new Set(), query="";
 
 const $=id=>document.getElementById(id);
 const main=$("main"), toc=$("toc"), empty=$("empty"), count=$("count"), banner=$("banner");
@@ -445,12 +516,14 @@ $("pePatterns").innerHTML=PATTERNS.map(t=>`<div class="pe-card"><h4>${esc(t.h)}<
 const libControls=$("libControls");
 document.querySelectorAll('.pagenav button').forEach(b=>{
   b.onclick=()=>{
-    if(b.dataset.page==='admin'&&!isAdmin)return;
     document.querySelectorAll('.pagenav button').forEach(x=>x.classList.toggle('active',x===b));
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     $("page-"+b.dataset.page).classList.add('active');
     libControls.style.display=(b.dataset.page==='library')?'':'none';
-    if(b.dataset.page==='admin')loadAdminData();
+    if(b.dataset.page==='admin'){
+      if(isAdmin){$('adminLoginBox').style.display='none';$('adminPanel').style.display='';loadAdminData();}
+      else{$('adminLoginBox').style.display='block';$('adminPanel').style.display='none';}
+    }
     window.scrollTo({top:0});
   };
 });
@@ -522,9 +595,9 @@ function render(){
   prompts.forEach(p=>(p.tags||[]).forEach(t=>counts[t]=(counts[t]||0)+1));
   const tags=Object.keys(counts).sort();
   $("tagchips").innerHTML=
-    `<button class="chip${!activeTag?' on':''}" data-tag="__all">All <span class="ct">${total}</span></button>`+
-    tags.map(t=>`<button class="chip${activeTag===t?' on':''}" data-tag="${escAttr(t)}">${esc(t)} <span class="ct">${counts[t]}</span></button>`).join('');
-  $("activeTagLabel").textContent=activeTag?('· '+activeTag):'';
+    `<button class="chip${activeTags.size===0?' on':''}" data-tag="__all">All <span class="ct">${total}</span></button>`+
+    tags.map(t=>`<button class="chip${activeTags.has(t)?' on':''}" data-tag="${escAttr(t)}">${esc(t)} <span class="ct">${counts[t]}</span></button>`).join('');
+  $("activeTagLabel").textContent=activeTags.size?('· '+activeTags.size+' selected'):'';
 
   toc.innerHTML=''; main.querySelectorAll('.group').forEach(g=>g.remove());
   let shown=0,lastGroup=null; const shownIds=new Set(); const visibleTotal=prompts.length;
@@ -547,7 +620,7 @@ function render(){
     let any=false;
     items.forEach((p,idx)=>{
       const display=sec.n+'.'+(idx+1);
-      const matchTag=!activeTag||(p.tags||[]).includes(activeTag);
+      const matchTag=activeTags.size===0||(p.tags||[]).some(t=>activeTags.has(t));
       const hay=(display+' '+p.t+' '+p.use+' '+p.sys+' '+p.usr+' '+(p.tags||[]).join(' ')+' '+sec.title).toLowerCase();
       const matchQ=!query||hay.includes(query);
       if(matchTag&&matchQ){grp.appendChild(card(p,display));any=true;shownIds.add(p.id);}
@@ -560,8 +633,8 @@ function render(){
     }
   });
   shown=shownIds.size;
-  count.textContent=(query||activeTag)?`${shown} shown`:`${visibleTotal} prompts`;
-  empty.style.display=((query||activeTag)&&shown===0)?'block':'none';
+  count.textContent=(query||activeTags.size>0)?`${shown} shown`:`${visibleTotal} prompts`;
+  empty.style.display=((query||activeTags.size>0)&&shown===0)?'block':'none';
 }
 
 function starsHtml(id){const s=stats[id];const avg=s&&s.cnt?s.avg:0;let h='';for(let i=1;i<=5;i++)h+=`<span class="star${i<=Math.round(avg)?' fill':''}" data-star="${i}">★</span>`;return h;}
@@ -604,7 +677,7 @@ function card(p,display){
 const lookup=()=>{const m={};prompts.forEach(p=>m[p.id]=p);return m;};
 main.addEventListener('click',async e=>{
   const tagEl=e.target.closest('.tag');
-  if(tagEl&&tagEl.dataset.tag){activeTag=(activeTag===tagEl.dataset.tag)?null:tagEl.dataset.tag;render();return;}
+  if(tagEl&&tagEl.dataset.tag){const t=tagEl.dataset.tag;if(activeTags.has(t)){activeTags.delete(t);}else{activeTags.add(t);}render();return;}
   const cardEl=e.target.closest('.card');if(!cardEl)return;
   const id=cardEl.dataset.id;const p=lookup()[id];
   if(e.target.closest('.copy')){e.stopPropagation();copyText(e.target,e.target.dataset.copy==='sys'?p.sys:p.usr);return;}
@@ -643,7 +716,7 @@ main.addEventListener('mouseover',e=>{if(e.target.classList.contains('star')){co
 main.addEventListener('mouseout',e=>{if(e.target.classList.contains('star'))e.target.parentElement.querySelectorAll('.star').forEach(s=>s.classList.remove('hv'));});
 function copyText(btn,text){navigator.clipboard.writeText(text).then(()=>{const o=btn.textContent;btn.textContent='Copied';btn.classList.add('done');setTimeout(()=>{btn.textContent=o;btn.classList.remove('done');},1400);}).catch(()=>{btn.textContent='⌘C';});}
 
-$("tagchips").addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;const t=c.dataset.tag;activeTag=(t==='__all'||activeTag===t)?null:t;render();});
+$("tagchips").addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;const t=c.dataset.tag;if(t==='__all'){activeTags.clear();}else if(activeTags.has(t)){activeTags.delete(t);}else{activeTags.add(t);}render();});
 $("search").addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();render();});
 
 /* ---------- modal ---------- */
@@ -833,144 +906,65 @@ $('saveAdminModal').onclick=async()=>{
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&adminOverlay.classList.contains('open'))closeAdminModal();});
 
 /* ---------- auth + boot ---------- */
-function showLogin(){
-  document.getElementById('loginScreen').style.display='flex';
-  document.getElementById('userBar').style.display='none';
-}
-function showLoading(){
-  const msg=document.getElementById('loginMsg');
-  msg.textContent='Signing you in…';msg.style.color='var(--muted)';msg.style.display='block';
-  document.getElementById('signInBtn').style.display='none';
-  document.getElementById('loginEmail').style.display='none';
-  document.getElementById('loginScreen').style.display='flex';
-}
-
-let appStarted=false;
-async function startApp(session){
-  if(appStarted)return;
-  appStarted=true;
+async function handleAdminAuth(session){
   currentSession=session;
-  // Get admin role — fail silently
   try{
     const {data}=await supabaseClient.from('user_roles').select('role').eq('user_id',session.user.id).maybeSingle();
     isAdmin=data?.role==='admin';
   }catch(e){isAdmin=false;}
-  // Show the app — no turning back from here
-  document.getElementById('userEmailDisplay').textContent=session.user.email||'';
-  document.getElementById('userBar').style.display='flex';
-  document.getElementById('loginScreen').style.display='none';
-  const adminBtn=document.querySelector('.pagenav button[data-page="admin"]');
-  if(adminBtn)adminBtn.style.display=isAdmin?'':'none';
-  // Load data and render — errors stay silent, fallback data is used
-  try{await loadData();}catch(e){console.error('loadData error:',e);}
-  try{render();}catch(e){console.error('render error:',e);}
+  if(isAdmin){
+    document.getElementById('userEmailDisplay').textContent=session.user.email||'';
+    document.getElementById('userBar').style.display='flex';
+    if($('page-admin').classList.contains('active')){
+      $('adminLoginBox').style.display='none';
+      $('adminPanel').style.display='';
+      loadAdminData();
+    }
+  }
 }
 
 supabaseClient.auth.onAuthStateChange(async(event,session)=>{
-  if(event==='INITIAL_SESSION'&&session){
-    await startApp(session);
+  if((event==='INITIAL_SESSION'||event==='SIGNED_IN')&&session){
+    await handleAdminAuth(session);
   }else if(event==='TOKEN_REFRESHED'&&session){
     currentSession=session;
   }else if(event==='SIGNED_OUT'){
-    appStarted=false;currentSession=null;isAdmin=false;
+    currentSession=null;isAdmin=false;
     document.getElementById('userBar').style.display='none';
-    document.querySelectorAll('.pagenav button').forEach(b=>b.classList.toggle('active',b.dataset.page==='library'));
-    document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-library'));
-    showLogin();
-  }
-});
-
-let loginMode='signin';
-
-document.getElementById('toggleModeBtn').addEventListener('click',()=>{
-  loginMode=loginMode==='signin'?'signup':'signin';
-  const isSignup=loginMode==='signup';
-  document.getElementById('loginConfirmWrap').style.display=isSignup?'block':'none';
-  document.getElementById('signInBtn').textContent=isSignup?'Create account':'Sign in';
-  document.getElementById('toggleModeBtn').textContent=isSignup?'Already have an account? Sign in':'New here? Create an account';
-  document.getElementById('loginDesc').textContent=isSignup?'Create an account with your Accenture email.':'Sign in with your Accenture email.';
-  const pw=document.getElementById('loginPassword');
-  pw.setAttribute('autocomplete',isSignup?'new-password':'current-password');
-  pw.setAttribute('placeholder',isSignup?'choose a password (8+ chars)':'password');
-  document.getElementById('loginMsg').style.display='none';
-});
-
-document.getElementById('signInBtn').addEventListener('click',async()=>{
-  const email=document.getElementById('loginEmail').value.trim().toLowerCase();
-  const password=document.getElementById('loginPassword').value;
-  const confirm=document.getElementById('loginConfirm').value;
-  const msg=document.getElementById('loginMsg');
-  msg.style.display='none';
-  if(!email.endsWith('@accenture.com')){
-    msg.textContent='Only @accenture.com addresses are allowed.';msg.style.color='var(--warn)';msg.style.display='block';return;
-  }
-  if(password.length<8){
-    msg.textContent='Password must be at least 8 characters.';msg.style.color='var(--warn)';msg.style.display='block';return;
-  }
-  if(loginMode==='signup'&&password!==confirm){
-    msg.textContent='Passwords do not match.';msg.style.color='var(--warn)';msg.style.display='block';return;
-  }
-  const btn=document.getElementById('signInBtn');
-  btn.disabled=true;btn.textContent=loginMode==='signup'?'Creating…':'Signing in…';
-  if(loginMode==='signup'){
-    const {error}=await supabaseClient.auth.signUp({email,password});
-    if(error){
-      msg.textContent=error.message;msg.style.color='var(--warn)';msg.style.display='block';
-      btn.disabled=false;btn.textContent='Create account';return;
+    $('adminPanel').style.display='none';
+    if($('page-admin').classList.contains('active')){
+      $('adminLoginBox').style.display='block';
     }
   }
-  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
-  if(error){
-    msg.textContent=loginMode==='signup'?'Account created — please sign in.':'Incorrect email or password.';
-    msg.style.color='var(--warn)';msg.style.display='block';
-    if(loginMode==='signup'){loginMode='signin';btn.textContent='Sign in';}
-    else{btn.disabled=false;btn.textContent='Sign in';}
-    return;
-  }
-  if(data.session)await startApp(data.session);
 });
 
-document.getElementById('loginEmail').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginPassword').focus();});
-document.getElementById('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('signInBtn').click();});
-document.getElementById('loginConfirm').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('signInBtn').click();});
+$('adminLoginBtn').addEventListener('click',async()=>{
+  const email=$('adminEmail').value.trim().toLowerCase();
+  const password=$('adminPw').value;
+  const warn=$('adminLoginWarn');
+  warn.style.display='none';
+  if(!email.endsWith('@accenture.com')){warn.textContent='Only @accenture.com addresses are allowed.';warn.style.display='block';return;}
+  if(!password){warn.textContent='Please enter your password.';warn.style.display='block';return;}
+  const btn=$('adminLoginBtn');
+  btn.disabled=true;btn.textContent='Signing in…';
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+  btn.disabled=false;btn.textContent='Sign in';
+  if(error||!data.session){warn.textContent='Incorrect email or password.';warn.style.display='block';return;}
+  // handleAdminAuth fires via onAuthStateChange
+});
+
+$('adminEmail').addEventListener('keydown',e=>{if(e.key==='Enter')$('adminPw').focus();});
+$('adminPw').addEventListener('keydown',e=>{if(e.key==='Enter')$('adminLoginBtn').click();});
 document.getElementById('signOutBtn').addEventListener('click',()=>supabaseClient.auth.signOut());
 
-// ── Change password ───────────────────────────────────────────────
-document.getElementById('changePwBtn').addEventListener('click',()=>{
-  document.getElementById('newPw1').value='';
-  document.getElementById('newPw2').value='';
-  document.getElementById('changePwMsg').style.display='none';
-  document.getElementById('changePwModal').style.display='flex';
-  document.getElementById('newPw1').focus();
+document.getElementById('copyBrief').addEventListener('click',function(){
+  copyText(this, document.getElementById('starterBrief').textContent);
 });
-document.getElementById('changePwCancelBtn').addEventListener('click',()=>{
-  document.getElementById('changePwModal').style.display='none';
-});
-document.getElementById('changePwSaveBtn').addEventListener('click',async()=>{
-  const pw1=document.getElementById('newPw1').value;
-  const pw2=document.getElementById('newPw2').value;
-  const msg=document.getElementById('changePwMsg');
-  msg.style.display='none';
-  if(pw1.length<8){msg.textContent='Password must be at least 8 characters.';msg.style.color='var(--warn)';msg.style.display='block';return;}
-  if(pw1!==pw2){msg.textContent='Passwords do not match.';msg.style.color='var(--warn)';msg.style.display='block';return;}
-  const btn=document.getElementById('changePwSaveBtn');
-  btn.disabled=true;btn.textContent='Saving…';
-  const {error}=await supabaseClient.auth.updateUser({password:pw1});
-  if(error){
-    msg.textContent=error.message;msg.style.color='var(--warn)';msg.style.display='block';
-    btn.disabled=false;btn.textContent='Save';
-  }else{
-    msg.textContent='Password updated successfully.';msg.style.color='var(--accent)';msg.style.display='block';
-    btn.disabled=false;btn.textContent='Save';
-    setTimeout(()=>document.getElementById('changePwModal').style.display='none',1500);
-  }
-});
-document.getElementById('newPw2').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('changePwSaveBtn').click();});
 
 (async()=>{
-  const {data:{session}}=await supabaseClient.auth.getSession();
-  if(session)await startApp(session);
-  else showLogin();
+  // Load and render immediately — no login required to browse the library
+  try{await loadData();}catch(e){console.error('loadData error:',e);}
+  try{render();}catch(e){console.error('render error:',e);}
 })();
 </script>
 </body>
