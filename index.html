@@ -195,8 +195,8 @@
       <button id="signOutBtn" class="btn ghost" style="font-size:11px;padding:5px 12px;">Sign out</button>
     </div>
     <div class="eyebrow">Rolls-Royce · AI Prompt Library</div>
-    <h1>Reusable prompts for your work on the account.</h1>
-    <p class="lede">A shared, live library of system prompts and fill-in templates. Add prompts, rate what works, and leave feedback — saved for everyone. Placeholders only — never client or personal data.</p>
+    <h1>RR Prompt Library</h1>
+    <p class="lede">A shared, live library of conversation starters and prompt templates. Add prompts, rate what works, and leave feedback — saved for everyone. Placeholders only — never client or personal data.</p>
     <div class="stats" id="stats"></div>
   </div>
 </header>
@@ -205,7 +205,6 @@
   <div class="pagenav-inner">
     <button data-page="library" class="active">Prompt Library</button>
     <button data-page="pe">Prompt Engineering</button>
-    <button data-page="tools">Approved Tools</button>
     <button data-page="config">Personal Config</button>
     <button data-page="admin">Admin</button>
   </div>
@@ -240,14 +239,6 @@
     <div class="pe-grid" id="peTechniques"></div>
     <div class="pe-sub">Patterns · repeatable structures</div>
     <div class="pe-grid" id="pePatterns"></div>
-  </div>
-</div>
-<div class="page" id="page-tools">
-  <div class="tools-wrap">
-    <h1 style="font-family:var(--display);font-weight:600;font-size:28px;margin:6px 0 10px;">Approved AI tools.</h1>
-    <p class="pe-intro" style="margin-bottom:18px;">Use only approved tools, in line with policy. Never enter client, personal or sensitive data.</p>
-    <div class="tooling"><table><thead><tr><th>Tool</th><th>Main use case</th><th>Access link</th><th>Access process</th><th>Usage guidance</th></tr></thead><tbody id="toolsBody"></tbody></table></div>
-    <p class="note">Tooling and access routes change — confirm against current organisational policy before use.</p>
   </div>
 </div>
 <!-- ======== PERSONAL CONFIG PAGE ======== -->
@@ -386,8 +377,8 @@ Ask: If my request is ambiguous, ask one clarifying question before answering.</
       <div class="field"><label>Workstream links (optional)</label><select id="af-ws" multiple size="4" style="font-family:var(--mono);font-size:12.5px;"></select><div class="hint">Ctrl/Cmd-click for more than one.</div></div>
       <div class="field"><label>Prompt title</label><input id="af-title" placeholder="Short, clear name"></div>
       <div class="field"><label>Use when</label><input id="af-use" placeholder="When would someone reach for this?"></div>
-      <div class="field"><label>System prompt</label><textarea id="af-sys" rows="5" placeholder="Defines the assistant's role…"></textarea></div>
-      <div class="field"><label>User template</label><textarea id="af-usr" rows="6" placeholder="The fill-in template with {PLACEHOLDERS}…"></textarea></div>
+      <div class="field"><label>Conversation starter</label><textarea id="af-sys" rows="5" placeholder="Defines the assistant's role…"></textarea></div>
+      <div class="field"><label>Prompt template</label><textarea id="af-usr" rows="6" placeholder="The fill-in template with {PLACEHOLDERS}…"></textarea></div>
       <div class="field"><label>Tags</label><input id="af-tags" placeholder="comma, separated, tags"></div>
       <div class="field"><label>Status</label>
         <select id="af-status">
@@ -415,8 +406,8 @@ Ask: If my request is ambiguous, ask one clarifying question before answering.</
       <div class="field"><label>Workstream (optional)</label><select id="f-ws" multiple size="5" style="font-family:var(--mono);font-size:12.5px;"></select><div class="hint">Optional — link to one or more workstreams. Ctrl/Cmd-click for more than one.</div></div>
       <div class="field"><label>Prompt title</label><input id="f-title" placeholder="Short, clear name"></div>
       <div class="field"><label>Use when</label><input id="f-use" placeholder="When would someone reach for this?"></div>
-      <div class="field"><label>System prompt</label><textarea id="f-sys" rows="4" placeholder="Defines the assistant's role and rules…"></textarea></div>
-      <div class="field"><label>User template</label><textarea id="f-usr" rows="5" placeholder="The fill-in template, with {PLACEHOLDERS}…"></textarea></div>
+      <div class="field"><label>Conversation starter</label><textarea id="f-sys" rows="4" placeholder="Defines the assistant's role and rules…"></textarea></div>
+      <div class="field"><label>Prompt template</label><textarea id="f-usr" rows="5" placeholder="The fill-in template, with {PLACEHOLDERS}…"></textarea></div>
       <div class="field"><label>Tags</label><input id="f-tags" placeholder="comma, separated, tags"></div>
     </div>
     <div class="modal-foot">
@@ -508,7 +499,6 @@ function allSections(){return BASE_SECTIONS.concat(customSections);}
 function wsTitle(id){const s=allSections().find(x=>x.id===id);return s?s.title:id;}
 
 /* ---------- static pages ---------- */
-$("toolsBody").innerHTML=TOOLS.map(t=>`<tr><td><b>${esc(t[0])}</b></td><td>${esc(t[1])}</td><td>${esc(t[2])}</td><td>${esc(t[3])}</td><td>${esc(t[4])}</td></tr>`).join('');
 $("peTechniques").innerHTML=TECHNIQUES.map(t=>`<div class="pe-card"><h4>${esc(t.h)}</h4><p>${esc(t.p)}</p><div class="ex"><b>Example</b>${esc(t.ex)}</div></div>`).join('');
 $("pePatterns").innerHTML=PATTERNS.map(t=>`<div class="pe-card"><h4>${esc(t.h)}</h4><p>${esc(t.p)}</p></div>`).join('');
 
@@ -556,8 +546,8 @@ async function loadData(){
 
 async function submitPrompt(rec){
   validateLength(rec.t,2,300,'Title');
-  validateLength(rec.sys,10,15000,'System prompt');
-  validateLength(rec.usr,10,15000,'User template');
+  validateLength(rec.sys,10,15000,'Conversation starter');
+  validateLength(rec.usr,10,15000,'Prompt template');
   if((rec.use||'').length>1000)throw new Error('Use when must be at most 1000 characters.');
   if((rec.tags||[]).length>20)throw new Error('Too many tags (max 20).');
   if(!checkRateLimit('rl_sub',3,3600000))throw new Error('rate_limit_sub');
@@ -588,8 +578,7 @@ function render(){
   $("stats").innerHTML=
     `<div class="stat"><b>${total}</b><small>Prompts</small></div>`+
     `<div class="stat"><b>${allSections().length}</b><small>Sections</small></div>`+
-    `<div class="stat"><b>${wsCount}</b><small>Workstreams</small></div>`+
-    `<div class="stat"><b>${TOOLS.length}</b><small>Approved tools</small></div>`;
+    `<div class="stat"><b>${wsCount}</b><small>Workstreams</small></div>`;
 
   const counts={};
   prompts.forEach(p=>(p.tags||[]).forEach(t=>counts[t]=(counts[t]||0)+1));
@@ -660,8 +649,8 @@ function card(p,display){
       <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
     </div>
     <div class="card-body">
-      <div class="block"><div class="block-label"><span>System prompt</span><button class="copy" data-copy="sys">Copy</button></div><pre>${esc(p.sys)}</pre></div>
-      <div class="block"><div class="block-label"><span>User template</span><button class="copy" data-copy="usr">Copy</button></div><pre>${esc(p.usr)}</pre></div>
+      <div class="block"><div class="block-label"><span>Conversation starter</span><button class="copy" data-copy="sys">Copy</button></div><pre>${esc(p.sys)}</pre></div>
+      <div class="block"><div class="block-label"><span>Prompt template</span><button class="copy" data-copy="usr">Copy</button></div><pre>${esc(p.usr)}</pre></div>
       <div class="meta">
         <div class="rate"><span class="lbl">Rate</span><span class="stars">${starsHtml(p.id)}</span></div>
         <button class="fb-toggle">Feedback (${fb.length})</button>
@@ -742,7 +731,7 @@ overlay.addEventListener('click',e=>{if(e.target===overlay)closeModal();});
 secSel.addEventListener('change',()=>{newSecFields.classList.toggle('show',secSel.value==='__new');});
 $("saveModal").onclick=async()=>{
   const title=$("f-title").value.trim(),sys=$("f-sys").value.trim(),usr=$("f-usr").value.trim();
-  if(!title||!sys||!usr){alert('Please add at least a title, system prompt and user template.');return;}
+  if(!title||!sys||!usr){alert('Please add at least a title, conversation starter and prompt template.');return;}
   let secId=secSel.value;
   if(secId==='__new'){
     const st=$("f-secTitle").value.trim();
@@ -878,7 +867,7 @@ $('adminAddBtn').onclick=()=>openAdminEdit(null);
 
 $('saveAdminModal').onclick=async()=>{
   const title=$('af-title').value.trim(),sys=$('af-sys').value.trim(),usr=$('af-usr').value.trim();
-  if(!title||!sys||!usr){alert('Title, system prompt and user template are required.');return;}
+  if(!title||!sys||!usr){alert('Title, conversation starter and prompt template are required.');return;}
   const body={
     section:$('af-section').value,
     workstreams:[...$('af-ws').selectedOptions].map(o=>o.value),
