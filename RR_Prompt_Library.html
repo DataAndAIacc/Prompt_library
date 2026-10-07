@@ -644,11 +644,11 @@ function openModal(){
   fillSectionSelect();newSecFields.classList.remove('show');overlay.classList.add('open');
 }
 function closeModal(){overlay.classList.remove('open');['f-title','f-use','f-sys','f-usr','f-tags','f-secTitle'].forEach(id=>$(id).value='');[...$("f-ws").options].forEach(o=>o.selected=false);}
-$("addBtn").onclick=openModal;
-$("closeModal").onclick=closeModal;
-$("cancelModal").onclick=closeModal;
-overlay.addEventListener('click',e=>{if(e.target===overlay)closeModal();});
-secSel.addEventListener('change',()=>{newSecFields.classList.toggle('show',secSel.value==='__new');});
+if($("addBtn"))$("addBtn").onclick=openModal;
+if($("closeModal"))$("closeModal").onclick=closeModal;
+if($("cancelModal"))$("cancelModal").onclick=closeModal;
+if(overlay)overlay.addEventListener('click',e=>{if(e.target===overlay)closeModal();});
+if(secSel)secSel.addEventListener('change',()=>{newSecFields&&newSecFields.classList.toggle('show',secSel.value==='__new');});
 $("saveModal").onclick=async()=>{
   const title=$("f-title").value.trim(),sys=$("f-sys").value.trim(),usr=$("f-usr").value.trim();
   if(!title||!sys||!usr){alert('Please add at least a title, conversation starter and prompt template.');return;}
@@ -674,15 +674,15 @@ $("saveModal").onclick=async()=>{
   }
   btn.disabled=false;btn.textContent='Submit prompt';
 };
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('open'))closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay&&overlay.classList.contains('open'))closeModal();});
 
 /* ---------- admin ---------- */
 let adminPrompts=[];
 let adminTab='pending';
 let editingId=null;
 
-$('adminLockBtn').onclick=()=>supabaseClient.auth.signOut();
-$('adminRefreshBtn').onclick=loadAdminData;
+if($('adminLockBtn'))$('adminLockBtn').onclick=()=>supabaseClient.auth.signOut();
+if($('adminRefreshBtn'))$('adminRefreshBtn').onclick=loadAdminData;
 
 async function loadAdminData(){
   $('adminContent').innerHTML='<div style="padding:20px;font-family:var(--mono);font-size:13px;color:var(--muted)">Loading…</div>';
@@ -785,7 +785,7 @@ if($('cancelAdminModal'))$('cancelAdminModal').onclick=closeAdminModal;
 if(adminOverlay)adminOverlay.addEventListener('click',e=>{if(e.target===adminOverlay)closeAdminModal();});
 if($('adminAddBtn'))$('adminAddBtn').onclick=()=>openAdminEdit(null);
 
-$('saveAdminModal').onclick=async()=>{
+if($('saveAdminModal'))$('saveAdminModal').onclick=async()=>{
   const title=$('af-title').value.trim(),sys=$('af-sys').value.trim(),usr=$('af-usr').value.trim();
   if(!title||!sys||!usr){alert('Title, conversation starter and prompt template are required.');return;}
   const body={
