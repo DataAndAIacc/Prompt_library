@@ -440,8 +440,8 @@ function allSections(){return BASE_SECTIONS.concat(customSections);}
 function wsTitle(id){const s=allSections().find(x=>x.id===id);return s?s.title:id;}
 
 /* ---------- static pages ---------- */
-$("peTechniques").innerHTML=TECHNIQUES.map(t=>`<div class="pe-card"><h4>${esc(t.h)}</h4><p>${esc(t.p)}</p><div class="ex"><b>Example</b>${esc(t.ex)}</div></div>`).join('');
-$("pePatterns").innerHTML=PATTERNS.map(t=>`<div class="pe-card"><h4>${esc(t.h)}</h4><p>${esc(t.p)}</p></div>`).join('');
+{const el=$("peTechniques");if(el)el.innerHTML=TECHNIQUES.map(t=>`<div class="pe-card"><h4>${esc(t.h)}</h4><p>${esc(t.p)}</p><div class="ex"><b>Example</b>${esc(t.ex)}</div></div>`).join('');}
+{const el=$("pePatterns");if(el)el.innerHTML=PATTERNS.map(t=>`<div class="pe-card"><h4>${esc(t.h)}</h4><p>${esc(t.p)}</p></div>`).join('');}
 
 /* ---------- page nav ---------- */
 const libControls=$("libControls");
@@ -790,11 +790,11 @@ function openAdminEdit(p){
   $('af-status').value=p?p.status:'approved';
   adminOverlay.classList.add('open');
 }
-function closeAdminModal(){adminOverlay.classList.remove('open');editingId=null;}
-$('closeAdminModal').onclick=closeAdminModal;
-$('cancelAdminModal').onclick=closeAdminModal;
-adminOverlay.addEventListener('click',e=>{if(e.target===adminOverlay)closeAdminModal();});
-$('adminAddBtn').onclick=()=>openAdminEdit(null);
+function closeAdminModal(){if(adminOverlay)adminOverlay.classList.remove('open');editingId=null;}
+if($('closeAdminModal'))$('closeAdminModal').onclick=closeAdminModal;
+if($('cancelAdminModal'))$('cancelAdminModal').onclick=closeAdminModal;
+if(adminOverlay)adminOverlay.addEventListener('click',e=>{if(e.target===adminOverlay)closeAdminModal();});
+if($('adminAddBtn'))$('adminAddBtn').onclick=()=>openAdminEdit(null);
 
 $('saveAdminModal').onclick=async()=>{
   const title=$('af-title').value.trim(),sys=$('af-sys').value.trim(),usr=$('af-usr').value.trim();
@@ -823,7 +823,7 @@ $('saveAdminModal').onclick=async()=>{
   btn.disabled=false;btn.textContent='Save';
 };
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&adminOverlay.classList.contains('open'))closeAdminModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&adminOverlay&&adminOverlay.classList.contains('open'))closeAdminModal();});
 
 /* ---------- boot ---------- */
 (async()=>{
