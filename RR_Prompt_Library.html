@@ -352,17 +352,6 @@ Ask: If my request is ambiguous, ask one clarifying question before answering.</
 </div>
 
 <script>
-/* --- Security bootstrap (runs before anything else) --- */
-(function(){
-  if(location.protocol!=='https:'&&location.hostname!==''&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){
-    location.replace('https:'+location.href.slice(location.protocol.length));return;
-  }
-  if(window.self!==window.top){
-    try{window.top.location.replace(window.self.location.href);}
-    catch(e){document.body.innerHTML='<p style="padding:20px;font-family:sans-serif">This page cannot be loaded inside a frame.</p>';}
-    return;
-  }
-})();
 
 /* =====================================================================
    CONFIG — paste your Supabase project values here, then commit.
